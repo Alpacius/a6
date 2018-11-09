@@ -115,7 +115,7 @@ void a6_mthread_pool_destroy(struct a6_mthread_pool *pool) {
     free(a6_mthread_pool_ruin(pool));
 }
 
-int a6_mthread_pool_launch(struct a6_mthread_pool *pool, struct a6_scheduler *sched_set, uint32_t n_sched) {
+int a6_mthread_pool_launch(struct a6_mthread_pool *pool, struct a6_scheduler **sched_set, uint32_t n_sched) {
     if (n_sched != pool->priq.size)
         return 0;
     for (uint32_t i = 0; i < pool->priq.size; i++) {
