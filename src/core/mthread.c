@@ -5,14 +5,21 @@ static uint32_t seq_g = 0;
 
 static
 int a6_mthread_wait_promotion(struct a6_mthread *self) {
-    // TODO implementation
-    return 0;
+    // self->sched != NULL -> initial carriers
+    if (unlikely(self->sched != NULL))
+        return 1;
+    struct a6_mthread_pool *pool = self->pool;
+    if (sem_wait(&(pool->priq.sem)) == -1)
+        return -1;
+    if (sem_wait(&(self->aux.wchan)) == -1)
+        return -1;
+    return 1;
 }
 
 static
-int a6_mthread_unpark(struct a6_asynck *k) {
+int a6_mthread_unpark(struct a6_asynck k) {
     // TODO implementation
-    return 0;
+    return 1;
 }
 
 static
@@ -75,7 +82,6 @@ int a6_mthread_standby(struct a6_mthread *mth) {
         __auto_type m__ = (m_); \
         m__->sched = (s_); \
         m__->pool = (p_); \
-        sem_post(&(m__->aux.wchan)); \
     })
 
 #define a6_carrier_launch(m_) \
