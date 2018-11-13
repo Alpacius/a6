@@ -3,16 +3,76 @@
 
 static uint32_t seq_g = 0;
 
+#define a6_follower_prepare(m_, p_) \
+    ({ \
+        __auto_type m__ = (m_); \
+        m__->sched = NULL; \
+        m__->pool = (p_); \
+    })
+
+#define a6_carrier_prepare(m_, s_, p_) \
+    ({ \
+        __auto_type m__ = (m_); \
+        m__->sched = (s_); \
+        m__->pool = (p_); \
+    })
+
+#define a6_carrier_launch(m_) \
+    ({ \
+        __auto_type m__ = (m_); \
+        a6_mthread_standby(m__); \
+        a6_mthread_launch(m__); \
+    })
+
+#define a6_packed_word_acquire(w_, t_) \
+    ({ \
+        struct a6_packed_word *w__ = (w_); \
+        uint32_t t__ = (t_); \
+        __atomic_compare_exchange(&(w__->tok), t__, t__, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED); \
+    })
+
+#define a6_packed_word_payload(w_) \
+    ({ \
+        __auto_type w__ = (w_); \
+        _Generic(w__, struct a6_packed_word: w__.mth, a6__packed_word *: w__->mth); \
+    })
+
+struct a6_prom_queue *a6_prom_queue_init(struct a6_prom_queue *q, uint32_t size) {
+    if (unlikely((q->q = malloc(sizeof(struct a6_packed_word *))) == NULL))
+        return NULL;
+    return sem_init(&(q->sem_rq_l), 0, 0), sem_init(&(q->sem_rq_f), 0, size), q->size = size, q;
+}
+
+struct a6_prom_queue *a6_prom_queue_ruin(struct a6_prom_queue *q) {
+    return free(q->q), q;
+}
+
+struct a6_prom_queue *a6_prom_queue_create(uint32_t size) {
+    struct a6_prom_queue *q = malloc(sizeof(struct a6_prom_queue));
+    return likely(a6_prom_queue_init(q, size) != NULL) ? q : (free(q), NULL);
+}
+
+void a6_prom_queue_destroy(struct a6_prom_queue *q) {
+    free(a6_prom_queue_ruin(q));
+}
+
+int a6_prom_pick(struct a6_mthread *carrier, struct a6_prom_queue *q) {
+    // TODO implementation
+    return -1;
+}
+
+int a6_prom_wait(struct a6_mthread *follower, struct a6_prom_queue *q) {
+    // TODO implementation
+    return -1;
+}
+
 static
 int a6_mthread_wait_promotion(struct a6_mthread *self) {
     // self->sched != NULL -> initial carriers
     if (unlikely(self->sched != NULL))
         return 1;
     struct a6_mthread_pool *pool = self->pool;
-    if (sem_wait(&(pool->priq.sem)) == -1)
-        return -1;
-    if (sem_wait(&(self->aux.wchan)) == -1)
-        return -1;
+    // TODO implementation
     return 1;
 }
 
@@ -70,33 +130,13 @@ int a6_mthread_standby(struct a6_mthread *mth) {
     return sem_post(&(mth->aux.wchan));
 }
 
-#define a6_follower_prepare(m_, p_) \
-    ({ \
-        __auto_type m__ = (m_); \
-        m__->sched = NULL; \
-        m__->pool = (p_); \
-    })
-
-#define a6_carrier_prepare(m_, s_, p_) \
-    ({ \
-        __auto_type m__ = (m_); \
-        m__->sched = (s_); \
-        m__->pool = (p_); \
-    })
-
-#define a6_carrier_launch(m_) \
-    ({ \
-        __auto_type m__ = (m_); \
-        a6_mthread_standby(m__); \
-        a6_mthread_launch(m__); \
-    })
-
 struct a6_mthread_pool *a6_mthread_pool_init(struct a6_mthread_pool *pool, uint32_t cap, uint32_t coresize) {
     (pool->size = 0), (pool->cap = cap), (pool->priq.q = malloc(sizeof(struct a5_mthread *) * coresize));
     if (unlikely(pool->priq.q == NULL))
         return NULL;
-    list_init(&(pool->mthlist)), (pool->priq.size = coresize), sem_init(&(pool->priq.sem), 0, coresize);
-    return pool;
+    if (a6_prom_queue_init(&(pool->priq), coresize) == NULL)
+        return free(pool), NULL;
+    return list_init(&(pool->mthlist)), (pool->priq.size = coresize), pool;
 }
 
 struct a6_mthread_pool *a6_mthread_pool_ruin(struct a6_mthread_pool *pool) {

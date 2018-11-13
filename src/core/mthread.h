@@ -27,13 +27,19 @@ struct a6_mthread {
 #define     A6_MTH_CARRIER          0
 #define     A6_MTH_FOLLOWER         1
 
+struct a6_packed_word {
+    uint32_t tok;
+    struct a6_mthread *mth;
+};
+
+struct a6_prom_queue {
+    uint32_t size;
+    sem_t sem_rq_l, sem_rq_f;
+    struct a6_packed_word *q;
+};
 
 struct a6_mthread_pool {
     uint32_t cap, size;
     struct link_index mthlist;
-    struct {
-        uint32_t size;
-        struct a6_mthread *q;
-        sem_t sem;
-    } priq;
+    struct a6_prom_queue priq;
 };
