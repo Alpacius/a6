@@ -24,26 +24,30 @@ static uint32_t seq_g = 0;
         a6_mthread_launch(m__); \
     })
 
+#define a6_packed_word_init(w_) \
+    ({ \
+        struct a6_packed_word *w__ = (w_); \
+        (w__->tok = -1), (w__->mth = NULL); \
+    })
+
 #define a6_packed_word_acquire(w_, t_) \
     ({ \
         struct a6_packed_word *w__ = (w_); \
         uint32_t t__ = (t_); \
-        __atomic_compare_exchange(&(w__->tok), t__, t__, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED); \
-    })
-
-#define a6_packed_word_payload(w_) \
-    ({ \
-        __auto_type w__ = (w_); \
-        _Generic(w__, struct a6_packed_word: w__.mth, a6__packed_word *: w__->mth); \
+        uint32_t d__ = -1; \
+        __atomic_compare_exchange_n(&(w__->tok), &d__, t__, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED); \
     })
 
 struct a6_prom_queue *a6_prom_queue_init(struct a6_prom_queue *q, uint32_t size) {
     if (unlikely((q->q = malloc(sizeof(struct a6_packed_word *))) == NULL))
         return NULL;
+    for (uint32_t i = 0; i < size; i++)
+        a6_packed_word_init(&(q->q[i]));
     return sem_init(&(q->sem_rq_l), 0, 0), sem_init(&(q->sem_rq_f), 0, size), q->size = size, q;
 }
 
 struct a6_prom_queue *a6_prom_queue_ruin(struct a6_prom_queue *q) {
+    a6_packed_word_acquire(&(q->q[0]), 0);
     return free(q->q), q;
 }
 
