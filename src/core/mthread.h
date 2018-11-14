@@ -28,7 +28,7 @@ struct a6_mthread {
 #define     A6_MTH_FOLLOWER         1
 
 struct a6_packed_word {
-    uint32_t tok;
+    uintptr_t tok;
     struct a6_mthread *mth;
 };
 

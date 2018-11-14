@@ -24,16 +24,18 @@ static uint32_t seq_g = 0;
         a6_mthread_launch(m__); \
     })
 
+#define ptok_nil ((uintptr_t) NULL)
+
 #define a6_packed_word_init(w_) \
     ({ \
         struct a6_packed_word *w__ = (w_); \
-        (w__->tok = -1), (w__->mth = NULL); \
+        (w__->tok = ptok_nil), (w__->mth = NULL); \
     })
 
 #define a6_packed_word_acquire(w_, t_) \
     ({ \
         struct a6_packed_word *w__ = (w_); \
-        uint32_t t__ = (t_); \
+        uintptr_t t__ = (t_); \
         uint32_t d__ = -1; \
         __atomic_compare_exchange_n(&(w__->tok), &d__, t__, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED); \
     })
