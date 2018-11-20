@@ -4,6 +4,8 @@
 #include    <common/list.h>
 #include    <common/miscutils.h>
 
+#include    <core/evadaptor_afunix.h>
+
 struct a6_iomonitor;
 
 struct a6_scheduler {
@@ -13,6 +15,7 @@ struct a6_scheduler {
     struct {
         uint64_t max_n_uth;
     } baseinfo;
+    struct a6_evadaptor evchan;
 };
 
 struct a6_uthread;
