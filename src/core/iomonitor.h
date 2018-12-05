@@ -15,14 +15,14 @@ struct a6_ioext_act {
     int (*hook)(struct a6_iomonitor *, void *arg);
 };
 
-#define     N_IOEXT_CHAINS          5
+#define     N_IOEXT_CHAINS          4
 #define     IDX_IOEXT_PREPOLL       0
 #define     IDX_IOEXT_POSTPOLL      1
 #define     IDX_IOEXT_PRETIMED      1
 #define     IDX_IOEXT_POSTTIMED     2
-#define     IDX_IOEXT_PREIO         3
-#define     IDX_IOEXT_POSTIO        4
-#define     IDX_IOEXT_POSTED        4
+#define     IDX_IOEXT_PREIO         2
+#define     IDX_IOEXT_POSTIO        3
+#define     IDX_IOEXT_POSTED        3
 
 struct a6_iomonitor {
     intrusive;

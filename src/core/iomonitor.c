@@ -138,7 +138,7 @@ int a6_iomonitor_poll(
         return 0;
     ioext_run(iomon, IDX_IOEXT_PRETIMED);
     // TODO timed events
-    ioext_run(iomon, IDX_IOEXT_POSTIO);
+    ioext_run(iomon, IDX_IOEXT_PREIO);
     for (int i = 0; i < nfds; i++) {
         struct a6_waitk *k = iomon->epevents[i].data.ptr;
         struct a6_ioevent ioev = { .type = A6_IOEV_EP, .fd = a6_waitk_p_fd(k), .udata = k };
