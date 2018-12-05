@@ -30,6 +30,9 @@ struct a6_iomonitor {
     struct a6_evadaptor extevch;
     // TODO timer heap
     int cap;
+    struct {
+        int timeout;
+    } current_state;
     struct link_index ioext_chains[N_IOEXT_CHAINS];
     struct epoll_event epevents[];
 };

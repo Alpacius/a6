@@ -131,9 +131,9 @@ int a6_iomonitor_poll(
         } \
     } while (0)
     // TODO check timer & timeout
-    int timeout = -1;
+    iomon->current_state.timeout = -1;
     ioext_run(iomon, IDX_IOEXT_PREPOLL);
-    int nfds = epoll_wait(iomon->epfd, iomon->epevents, iomon->cap, timeout);
+    int nfds = epoll_wait(iomon->epfd, iomon->epevents, iomon->cap, iomon->current_state.timeout);
     if (unlikely(nfds == -1))
         return 0;
     ioext_run(iomon, IDX_IOEXT_PRETIMED);
