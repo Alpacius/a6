@@ -7,12 +7,30 @@
 
 struct a6_uthread;
 
+struct a6_iomonitor;
+
+struct a6_ioext_act {
+    intrusive;
+    void *arg;
+    int (*hook)(struct a6_iomonitor *, void *arg);
+};
+
+#define     N_IOEXT_CHAINS          5
+#define     IDX_IOEXT_PREPOLL       0
+#define     IDX_IOEXT_POSTPOLL      1
+#define     IDX_IOEXT_PRETIMED      1
+#define     IDX_IOEXT_POSTTIMED     2
+#define     IDX_IOEXT_PREIO         3
+#define     IDX_IOEXT_POSTIO        4
+#define     IDX_IOEXT_POSTED        4
+
 struct a6_iomonitor {
     intrusive;
     int epfd;
     struct a6_evadaptor extevch;
     // TODO timer heap
     int cap;
+    struct link_index ioext_chains[N_IOEXT_CHAINS];
     struct epoll_event epevents[];
 };
 

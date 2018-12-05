@@ -28,6 +28,8 @@ struct a6_asynck schedloop(struct a6_scheduler *s) {
     struct a6_asynck k = asynck_trivial;
     
     // TODO implementation
+    
+    // scheduler shall not handle io events
 
     for (;;) {
     }

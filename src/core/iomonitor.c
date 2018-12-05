@@ -14,6 +14,8 @@ struct a6_iomonitor *a6_iomonitor_create(int cap) {
             free(iomon),
             NULL;
     // TODO timer heap init
+    for (int i = 0; i < N_IOEXT_CHAINS; i++)
+        list_init(&(iomon->ioext_chains[i]));
     return (iomon->cap = cap), iomon;
 }
 
@@ -118,15 +120,31 @@ int a6_iomonitor_poll(
         uint32_t n_res_groups, 
         void (*collect)(struct a6_ioevent *, struct link_index **, uint32_t),
         uint32_t options) {
+#define ioext_run(m_, i_) \
+    do { \
+        struct a6_iomonitor *m__ = (m_); \
+        int i__ = (i_); \
+        struct link_index *c__ = &(m__->ioext_chains[i__]); \
+        list_foreach(c__) { \
+            struct a6_ioext_act *a = intrusive_ref(struct a6_ioext_act); \
+            a->hook(m__, a->arg); \
+        } \
+    } while (0)
     // TODO check timer & timeout
     int timeout = -1;
+    ioext_run(iomon, IDX_IOEXT_PREPOLL);
     int nfds = epoll_wait(iomon->epfd, iomon->epevents, iomon->cap, timeout);
     if (unlikely(nfds == -1))
         return 0;
+    ioext_run(iomon, IDX_IOEXT_PRETIMED);
+    // TODO timed events
+    ioext_run(iomon, IDX_IOEXT_POSTIO);
     for (int i = 0; i < nfds; i++) {
         struct a6_waitk *k = iomon->epevents[i].data.ptr;
         struct a6_ioevent ioev = { .type = A6_IOEV_EP, .fd = a6_waitk_p_fd(k), .udata = k };
         collect(&ioev, res_groups, n_res_groups);
     }
+    ioext_run(iomon, IDX_IOEXT_POSTED);
     return 1;
+#undef ioext_run
 }
