@@ -32,7 +32,7 @@ void a6_iomonitor_destroy(struct a6_iomonitor *iomon) {
 //       All fd registeration actions shall be EPOLL_CTL_ADD. EEXIST errors are omitted however.
 //
 //     - Long-term mode. Library users should keep fd wrappers for further actions.
-//       Fd wrappers keep polling registeration status, thus not EEXIST shall be triggered.
+//       Fd wrappers keep polling registeration status, thus no EEXIST shall be triggered.
 //       However, further option changes are omitted when adding fd to the epoll set.
 //
 //     - One-shot mode. EPOLLONSHOT attribute shall be attached to epoll event arguments.
