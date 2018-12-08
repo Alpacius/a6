@@ -3,10 +3,12 @@
 #include    <common/stdc_common.h>
 #include    <common/list.h>
 #include    <common/miscutils.h>
-
 #include    <core/evadaptor_afunix.h>
+#include    <core/ioext.h>
 
 struct a6_iomonitor;
+
+#define     N_IOEXT_ACTS        2
 
 struct a6_scheduler {
     intrusive;
@@ -19,6 +21,7 @@ struct a6_scheduler {
         struct link_index queue;
         pthread_spinlock_t lock;
     } qreqs;
+    struct a6_ioext_act ioext_hooks[N_IOEXT_ACTS];
     struct a6_evadaptor evchan;
 };
 
@@ -36,4 +39,4 @@ struct a6_asynck {
     struct a6_asynck_arg *karg;
 };
 
-struct a6_asynck schedloop(struct a6_scheduler *s);
+void schedloop(struct a6_scheduler *s);

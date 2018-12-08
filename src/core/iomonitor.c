@@ -134,9 +134,9 @@ int a6_iomonitor_poll(
     iomon->current_state.timeout = -1;
     ioext_run(iomon, IDX_IOEXT_PREPOLL);
     int nfds = epoll_wait(iomon->epfd, iomon->epevents, iomon->cap, iomon->current_state.timeout);
+    ioext_run(iomon, IDX_IOEXT_PRETIMED);
     if (unlikely(nfds == -1))
         return 0;
-    ioext_run(iomon, IDX_IOEXT_PRETIMED);
     // TODO timed events
     ioext_run(iomon, IDX_IOEXT_PREIO);
     for (int i = 0; i < nfds; i++) {
@@ -147,4 +147,9 @@ int a6_iomonitor_poll(
     ioext_run(iomon, IDX_IOEXT_POSTED);
     return 1;
 #undef ioext_run
+}
+
+void a6_attach_ioext_hook(struct a6_iomonitor *iomon, struct a6_ioext_act *act, uint32_t timing) {
+    struct link_index *target = &(iomon->ioext_chains[timing]);
+    list_add_tail(intrusion_from_ptr(act), target);
 }

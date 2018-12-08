@@ -4,16 +4,11 @@
 #include    <common/linux_common.h>
 #include    <common/list.h>
 #include    <core/evadaptor_afunix.h>
+#include    <core/ioext.h>
 
 struct a6_uthread;
 
 struct a6_iomonitor;
-
-struct a6_ioext_act {
-    intrusive;
-    void *arg;
-    int (*hook)(struct a6_iomonitor *, void *arg);
-};
 
 #define     N_IOEXT_CHAINS          4
 #define     IDX_IOEXT_PREPOLL       0
@@ -137,3 +132,5 @@ int a6_iomonitor_poll(
         uint32_t n_res_groups, 
         void (*collect)(struct a6_ioevent *, struct link_index **, uint32_t),
         uint32_t options);
+
+void a6_attach_ioext_hook(struct a6_iomonitor *iomon, struct a6_ioext_act *act, uint32_t timing);
