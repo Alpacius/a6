@@ -34,16 +34,7 @@ int sched_retimeout(struct a6_iomonitor *iomon, void *sched_p) {
 }
 
 int a6_try_acquire_qreqs(struct a6_scheduler *sched) {
-    int r = pthread_spin_trylock(&(sched->qreqs.lock));
-#ifndef A6_PEDANTIC_ACQUIRE_QREQS
-    return r == 0;
-#else
-    if (r == -1) {
-        int errsv = errno;
-        return errsv == EBUSY;
-    } else
-        return likely(r == 0);
-#endif
+    return pthread_spin_trylock(&(sched->qreqs.lock)) == 0;
 }
 
 struct a6_scheduler *a6_scheduler_init(struct a6_scheduler *sched, uint64_t max_n_uth, struct a6_iomonitor *iomon) {
