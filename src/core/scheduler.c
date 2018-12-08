@@ -24,6 +24,7 @@ struct a6_scheduler *a6_scheduler_init(struct a6_scheduler *sched, uint64_t max_
 
 struct a6_scheduler *a6_scheduler_ruin(struct a6_scheduler *sched) {
     a6_evadaptor_ruin(&(sched->evchan));
+    pthread_spin_destroy(&(sched->qreqs.lock));
     return sched;
 }
 
