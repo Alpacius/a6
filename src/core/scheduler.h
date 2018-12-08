@@ -15,6 +15,10 @@ struct a6_scheduler {
     struct {
         uint64_t max_n_uth;
     } baseinfo;
+    struct {
+        struct link_index queue;
+        pthread_spinlock_t lock;
+    } qreqs;
     struct a6_evadaptor evchan;
 };
 
