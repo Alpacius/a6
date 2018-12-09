@@ -82,6 +82,7 @@ struct a6_waitk {
         int i;
     } fd;
     uint32_t evres;
+    struct a6_uthread *uth;
 };
 
 #define     A6_WAITK_PLAIN   0

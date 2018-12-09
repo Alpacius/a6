@@ -62,7 +62,8 @@ struct a6_scheduler *a6_scheduler_ruin(struct a6_scheduler *sched) {
     return sched;
 }
 
-static void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n_queues) {
+static
+void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n_queues) {
     // TODO implementation
 }
 
@@ -79,11 +80,31 @@ void a6_scheduler_destroy(struct a6_scheduler *sched) {
 
 void schedloop(struct a6_scheduler *s) {
     // TODO implementation
+    struct link_index qreqs;
+    struct link_index pollables[2];
+    struct a6_uthread sched_cntx;
     for (;;) {
         // 0. TODO deliver asynck
         // 1. acquire qreqs & fetch quick requests
-        // 2. polling
+        list_init(&qreqs);
+        sched_acquire_qreqs(s);
+        {
+            list_move(&qreqs, &(s->qreqs.queue));
+            // 2. polling
+            a6_iomonitor_poll(s->iomon, &pollables, 2, sched_collect, 0);
+        }
         // 3. merge requests & rescheduled uthreads into running queue
-        // 4. resched / 
+        for (int i = 0; i < 2; i++)
+            list_foreach(&(pollables[i])) {
+                detach_current_iterator;
+                list_add_tail(iterator, &(s->running));
+            }
+        // 4. resched
+        if (likely(list_is_empty(&(s->running))) == 0) {
+            struct link_index *target = s->running.next;
+            list_del(target);
+            struct a6_uthread *uth_next = intruded_val(target, struct a6_uthread);
+            a6_uthread_switch(uth_next, &sched_cntx);
+        }
     }
 }
