@@ -79,7 +79,6 @@ void a6_scheduler_destroy(struct a6_scheduler *sched) {
 }
 
 void schedloop(struct a6_scheduler *s) {
-    // TODO implementation
     struct link_index qreqs;
     struct link_index pollables[2];
     struct a6_uthread sched_cntx;
