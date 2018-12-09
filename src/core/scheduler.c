@@ -91,7 +91,8 @@ void schedloop(struct a6_scheduler *s) {
         {
             list_move(&qreqs, &(s->qreqs.queue));
             // 2. polling
-            a6_iomonitor_poll(s->iomon, &pollables, 2, sched_collect, 0);
+            struct link_index *pollables_p = pollables;     // Slience!
+            a6_iomonitor_poll(s->iomon, &pollables_p, 2, sched_collect, 0);
         }
         // 3. merge requests & rescheduled uthreads into running queue
         for (int i = 0; i < 2; i++)
