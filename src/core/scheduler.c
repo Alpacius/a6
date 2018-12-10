@@ -100,7 +100,7 @@ void schedloop(struct a6_scheduler *s) {
                 list_add_tail(iterator, &(s->running));
             }
         // 4. resched
-        if (likely(list_is_empty(&(s->running))) == 0) {
+        if (likely(list_is_empty(&(s->running)) == 0)) {
             struct link_index *target = s->running.next;
             list_del(target);
             struct a6_uthread *uth_next = intruded_val(target, struct a6_uthread);
