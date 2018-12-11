@@ -105,6 +105,7 @@ void schedloop(struct a6_scheduler *s) {
             list_del(target);
             struct a6_uthread *uth_next = intruded_val(target, struct a6_uthread);
             curr_uth = uth_next;
+            curr_uth->sched = s;
             a6_uthread_switch(uth_next, &sched_cntx);
         }
     }
