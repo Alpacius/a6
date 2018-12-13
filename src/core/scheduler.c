@@ -3,6 +3,7 @@
 #include    <core/iomonitor.h>
 
 static __thread struct a6_uthread *curr_uth = NULL;
+static __thread struct a6_uthread *curr_limbo = NULL;
 
 #define     asynck_trivial      ((struct a6_asynck) { NULL, NULL, NULL })
 
@@ -12,6 +13,10 @@ static __thread struct a6_uthread *curr_uth = NULL;
 
 struct a6_uthread *current_uthread(void) {
     return curr_uth;
+}
+
+struct a6_uthread *current_limbo(void) {
+    return curr_limbo;
 }
 
 static
@@ -82,6 +87,7 @@ void schedloop(struct a6_scheduler *s) {
     struct link_index qreqs;
     struct link_index pollables[2];
     struct a6_uthread sched_cntx;
+    curr_limbo = &sched_cntx;
     for (;;) {
         // 0. TODO deliver asynck
         // 1. acquire qreqs & fetch quick requests
