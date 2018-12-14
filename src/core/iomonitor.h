@@ -85,12 +85,15 @@ struct a6_waitk {
     struct a6_uthread *uth;
 };
 
+#define     A6_WAITK_DUMMY  -1
 #define     A6_WAITK_PLAIN   0
 #define     A6_WAITK_LTERM   1
 
+#define     A6_FD_DUMMY     -1
+
 #define     a6_waitk_fd_(k_, op_) \
     ({ \
-        __auto_type k__ = (k_); \
+        struct a6_waitk *k__ = (k_); \
         int fd_real_ = -1; \
         switch (k__ op_ type) { \
             case A6_WAITK_PLAIN: \
@@ -99,6 +102,8 @@ struct a6_waitk {
             case A6_WAITK_LTERM: \
                 fd_real_ = a6_fdwrap_fd(k__ op_ fd.w); \
                 break; \
+            default: \
+                fd_real_ = A6_FD_DUMMY; \
         } \
         fd_real_; \
     })
