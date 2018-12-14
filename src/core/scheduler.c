@@ -4,12 +4,14 @@
 
 static __thread struct a6_uthread *curr_uth = NULL;
 static __thread struct a6_uthread *curr_limbo = NULL;
+static __thread struct a6_scheduler *curr_sched = NULL;
 
 #define     asynck_trivial      ((struct a6_asynck) { NULL, NULL, NULL })
 
-#define     N_CQUEUES           2
+#define     N_CQUEUES           3
 #define     CQUEUE_IORDY        0
 #define     CQUEUE_TIMED        1
+#define     CQUEUE_CREAT        2
 
 struct a6_uthread *current_uthread(void) {
     return curr_uth;
@@ -19,23 +21,28 @@ struct a6_uthread *current_limbo(void) {
     return curr_limbo;
 }
 
-static
+static inline
 int sched_acquire_qreqs(struct a6_scheduler *sched) {
     return pthread_spin_lock(&(sched->qreqs.lock));
 }
 
-static
+static inline
 int sched_release_qreqs(struct a6_iomonitor *iomon, void *sched_p) {
     struct a6_scheduler *sched = sched_p;
     return pthread_spin_unlock(&(sched->qreqs.lock));
 }
 
-static
+static inline
 int sched_retimeout(struct a6_iomonitor *iomon, void *sched_p) {
     struct a6_scheduler *sched = sched_p;
     if (!list_is_empty(&(sched->running)))
         iomon->current_state.timeout = 0;
     return 0;
+}
+
+static inline
+struct a6_uthread *uth_from_req(struct a6_uth_req *req) {
+    return a6_uthread_create(req->func, req->arg, DEFAULT_N_STKPAGES);
 }
 
 int a6_try_acquire_qreqs(struct a6_scheduler *sched) {
@@ -69,7 +76,26 @@ struct a6_scheduler *a6_scheduler_ruin(struct a6_scheduler *sched) {
 
 static
 void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n_queues) {
-    // TODO implementation
+    struct a6_waitk *k = ev->udata;
+    switch (k->type) {
+        case A6_WAITK_DUMMY:
+            {
+                struct a6_uth_req req;
+                ssize_t rdsize = 0;
+                do {
+                    rdsize = read(a6_evadaptor_read_end(&(curr_sched->evchan)), &req, sizeof(req));
+                    if (likely(rdsize == sizeof(struct a6_uth_req))) {
+                        struct a6_uthread *uth_new = uth_from_req(&req);
+                        if (likely(uth_new != NULL))
+                            list_add_tail(intrusion_from_ptr(uth_new), queues[CQUEUE_CREAT]);
+                    }
+                } while (rdsize > 0);
+                break;
+            }
+        // TODO timer events
+        default:
+            list_add_tail(intrusion_from_ptr(k->uth), queues[CQUEUE_IORDY]);
+    }
 }
 
 struct a6_scheduler *a6_scheduler_create(uint64_t max_n_uth, struct a6_iomonitor *iomon) {
@@ -85,9 +111,10 @@ void a6_scheduler_destroy(struct a6_scheduler *sched) {
 
 void schedloop(struct a6_scheduler *s) {
     struct link_index qreqs;
-    struct link_index pollables[2];
+    struct link_index pollables[N_CQUEUES];
     struct a6_uthread sched_cntx;
     curr_limbo = &sched_cntx;
+    curr_sched = s;
     for (;;) {
         // 0. TODO deliver asynck
         // 1. acquire qreqs & fetch quick requests
@@ -100,11 +127,19 @@ void schedloop(struct a6_scheduler *s) {
             a6_iomonitor_poll(s->iomon, &pollables_p, 2, sched_collect, 0);
         }
         // 3. merge requests & rescheduled uthreads into running queue
-        for (int i = 0; i < 2; i++)
-            list_foreach(&(pollables[i])) {
+        for (int i = 0; i < N_CQUEUES; i++)
+            list_foreach_remove(&(pollables[i])) {
                 detach_current_iterator;
                 list_add_tail(iterator, &(s->running));
             }
+        // TODO acuqire qreqs again for better slb performance
+        list_foreach_remove(&qreqs) {
+            detach_current_iterator;
+            struct a6_uth_req *req = intrusive_ref(struct a6_uth_req);
+            struct a6_uthread *uth_new = uth_from_req(req);
+            if (likely(uth_new != NULL))
+                list_add_tail(intrusion_from_ptr(uth_new), &(s->running));
+        }
         // 4. resched
         if (likely(list_is_empty(&(s->running)) == 0)) {
             struct link_index *target = s->running.next;

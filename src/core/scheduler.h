@@ -5,6 +5,7 @@
 #include    <common/miscutils.h>
 #include    <core/evadaptor_afunix.h>
 #include    <core/ioext.h>
+#include    <core/uthreq.h>
 
 struct a6_iomonitor;
 

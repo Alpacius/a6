@@ -10,3 +10,5 @@ static
 void launch_resched(void) {
     a6_uthread_switch(current_limbo(), current_uthread());
 }
+
+#define uthread_yield launch_resched

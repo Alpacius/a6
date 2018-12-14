@@ -18,7 +18,10 @@
 
 static inline
 int a6_evadaptor_afunix_init(struct a6_evadaptor_afunix *a) {
-    return socketpair(AF_UNIX, SOCK_STREAM, 0, a->fdpair);
+    int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, a->fdpair);
+    if (unlikely(ret == -1))
+        return -1;
+    return fcntl(a->fdpair[0], F_SETFL, fcntl(a->fdpair[0], F_GETFL)|O_NONBLOCK);
 }
 
 static inline
