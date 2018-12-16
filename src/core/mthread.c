@@ -14,12 +14,14 @@ struct a6_mthread_pool {
     uint64_t max_n_uth;
     uint32_t size;
     struct link_index mthq;
+    pthread_barrier_t init_barrier;
     struct a6_mthread mths[];
 };
 
 static 
 void *mthread_entrance(void *arg) {
     struct a6_mthread *self = arg;
+    pthread_barrier_wait(&(self->pool->init_barrier));
     schedloop(&(self->sched));
     return NULL;
 }
@@ -40,6 +42,6 @@ struct a6_mthread *a6_mthread_ruin(struct a6_mthread *mth) {
         mth;
 }
 
-int a6_mthread_launch(struct a6_mthread *mth) {
-    return pthread_create(&(mth->ptid), NULL, mthread_entrance, mth);
+int a6_mthread_launch(struct a6_mthread *mth, struct a6_mthread_pool *pool) {
+    return (mth->pool = pool), pthread_create(&(mth->ptid), NULL, mthread_entrance, mth);
 }
