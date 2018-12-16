@@ -29,10 +29,10 @@ void *mthread_entrance(void *arg) {
 #define     DEFAULT_IO_CAP          1024
 #define     DEFAULT_MAX_N_UTH       8192
 
-struct a6_mthread *a6_mthread_init(struct a6_mthread *mth) {
+struct a6_mthread *a6_mthread_init(struct a6_mthread *mth, struct a6_mthread_pool *pool) {
     mth->iomon = a6_iomonitor_create(DEFAULT_IO_CAP);
     a6_scheduler_init(&(mth->sched), DEFAULT_MAX_N_UTH, mth->iomon);
-    return mth;
+    return (mth->pool = pool), mth;
 }
 
 struct a6_mthread *a6_mthread_ruin(struct a6_mthread *mth) {
@@ -43,5 +43,5 @@ struct a6_mthread *a6_mthread_ruin(struct a6_mthread *mth) {
 }
 
 int a6_mthread_launch(struct a6_mthread *mth, struct a6_mthread_pool *pool) {
-    return (mth->pool = pool), pthread_create(&(mth->ptid), NULL, mthread_entrance, mth);
+    return pthread_create(&(mth->ptid), NULL, mthread_entrance, mth);
 }
