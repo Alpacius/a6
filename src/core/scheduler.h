@@ -41,3 +41,5 @@ struct a6_asynck {
 };
 
 void schedloop(struct a6_scheduler *s);
+struct a6_scheduler *a6_scheduler_init(struct a6_scheduler *sched, uint64_t max_n_uth, struct a6_iomonitor *iomon);
+struct a6_scheduler *a6_scheduler_ruin(struct a6_scheduler *sched);
