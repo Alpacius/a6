@@ -10,4 +10,5 @@ struct a6_uth_req {
     intrusive;
     void (*func)(void *);
     void *arg;
+    void (*dispose)(struct a6_uth_req *);
 };

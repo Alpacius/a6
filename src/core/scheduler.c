@@ -42,7 +42,8 @@ int sched_retimeout(struct a6_iomonitor *iomon, void *sched_p) {
 
 static inline
 struct a6_uthread *uth_from_req(struct a6_uth_req *req) {
-    return a6_uthread_create(req->func, req->arg, DEFAULT_N_STKPAGES);
+    struct a6_uthread *uth = a6_uthread_create(req->func, req->arg, DEFAULT_N_STKPAGES);
+    return req->dispose(req), uth;
 }
 
 int a6_try_acquire_qreqs(struct a6_scheduler *sched) {
