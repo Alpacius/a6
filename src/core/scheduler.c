@@ -43,7 +43,29 @@ int sched_retimeout(struct a6_iomonitor *iomon, void *sched_p) {
 static inline
 struct a6_uthread *uth_from_req(struct a6_uth_req *req) {
     struct a6_uthread *uth = a6_uthread_create(req->func, req->arg, DEFAULT_N_STKPAGES);
-    return req->dispose(req), uth;
+    if (req->dispose)
+        req->dispose(req);
+    return uth;
+}
+
+static
+void uth_req_dispose_glibc(struct a6_uth_req *r) {
+    free(r);
+}
+
+int a6_send_uthread_request(struct a6_scheduler *sched, void (*func)(void *), void *arg) {
+    if (pthread_spin_trylock(&(sched->qreqs.lock)) == 0) {
+        struct a6_uth_req *rp = malloc(sizeof(struct a6_uth_req));
+        if (unlikely(rp == NULL))
+            return 0;
+        (rp->func = func), (rp->arg = arg), (rp->dispose = uth_req_dispose_glibc);
+        list_add_tail(intrusion_from_ptr(rp), &(sched->qreqs.queue));
+        pthread_spin_unlock(&(sched->qreqs.lock));
+    } else {
+        struct a6_uth_req ri = { .func = func, .arg = arg, .dispose = NULL };
+        return (write(a6_evadaptor_write_end(&(sched->evchan)), &ri, sizeof(ri)) == sizeof(ri));
+    }
+    return 1;
 }
 
 int a6_try_acquire_qreqs(struct a6_scheduler *sched) {
