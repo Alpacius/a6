@@ -82,3 +82,9 @@ struct a6_mthread_pool *a6_mthread_pool_create(uint32_t size) {
 void a6_mthread_pool_destroy(struct a6_mthread_pool *pool) {
     free(a6_mthread_pool_ruin(pool));
 }
+
+// call of lto
+struct a6_scheduler *scheduler_at(struct a6_mthread_pool *pool, uint32_t idx) {
+    if (likely(idx < pool->size))
+        return &(pool->mths[idx].sched);
+}
