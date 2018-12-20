@@ -1,13 +1,9 @@
 #pragma once
 
-#include    <common/stdc_common.h>
-#include    <common/linux_common.h>
+#include    <stdint.h>
 
-#include    <core/mthread.h>
+struct a6_swarm;
 
-struct a6_swarm {
-    struct {
-        uint32_t idx;
-    } slb;
-    struct a6_mthread_pool *mthpool;
-};
+struct a6_swarm *a6_swarm_create(uint32_t size);
+void a6_swarm_destroy(struct a6_swarm *swarm);
+int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg);
