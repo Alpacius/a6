@@ -28,7 +28,6 @@ struct a6_swarm *a6_swarm_create(uint32_t size) {
         unlikely(a6_swarm_init(swarm, size) == 0) ? 
             (free(swarm), NULL) : 
             swarm;
-
 }
 
 static
