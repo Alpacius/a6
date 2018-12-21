@@ -47,7 +47,12 @@ int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg) {
     return a6_send_uthread_request(scheduler_at(swarm->mthpool, idx), func, arg);
 }
 
-int a6_read_simple(int fd, uint32_t options) {
+int a6_read_barrier_simple(int fd, uint32_t options) {
     struct a6_uthread *uth = current_uthread();
     return a6_simple_read(uth, uth->sched->iomon, fd, options);
+}
+
+int a6_write_barrier_simple(int fd, uint32_t options) {
+    struct a6_uthread *uth = current_uthread();
+    return a6_simple_write(uth, uth->sched->iomon, fd, options);
 }
