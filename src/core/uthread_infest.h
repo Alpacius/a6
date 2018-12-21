@@ -18,4 +18,4 @@ void blocking_resched(void) {
     a6_uthread_switch(current_limbo(), f);
 }
 
-#define uthread_yield blcking_resched
+#define uthread_yield blocking_resched

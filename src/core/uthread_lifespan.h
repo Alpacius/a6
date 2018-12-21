@@ -3,8 +3,6 @@
 #include    <core/uthread.h>
 #include    <core/uthstate.h>
 
-#define     uthread_yield
-
 struct a6_uthread *uthread_self(void);
 void set_uthread_self(struct a6_uthread *newself);
 

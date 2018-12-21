@@ -3,7 +3,10 @@
 #include    <core/swarm.h>
 #include    <core/scheduler.h>
 #include    <core/iomonitor.h>
+#include    <core/iotrigger.h>
 #include    <core/mthread.h>
+#include    <core/uthread.h>
+#include    <core/uthread_infest.h>
 
 struct a6_swarm {
     struct {
@@ -42,4 +45,9 @@ void a6_swarm_destroy(struct a6_swarm *swarm) {
 int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg) {
     uint32_t idx = __atomic_fetch_add(&(swarm->slb.idx), 1, __ATOMIC_ACQ_REL) % swarm->slb.size;
     return a6_send_uthread_request(scheduler_at(swarm->mthpool, idx), func, arg);
+}
+
+int a6_read_simple(int fd, uint32_t options) {
+    struct a6_uthread *uth = current_uthread();
+    return a6_simple_read(uth, uth->sched->iomon, fd, options);
 }
