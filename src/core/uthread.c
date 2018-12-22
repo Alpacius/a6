@@ -1,5 +1,6 @@
 #include    <core/uthread.h>
 
+void a6i_mark_dying(struct a6_uthread *uth);
 
 static
 void a6_uthread_entrance(void *uthp) {
@@ -8,6 +9,7 @@ void a6_uthread_entrance(void *uthp) {
         a6_state_entry(uth);
         uth->k.entrance(uth->k.arg);
     }
+    a6i_mark_dying(uth);
     a6_mcontext_switch(&(uth->k.cont->k.m), &(uth->k.m));
 }
 

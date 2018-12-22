@@ -59,6 +59,12 @@ void uth_req_dispose_glibc(struct a6_uth_req *r) {
     free(r);
 }
 
+void a6i_mark_dying(struct a6_uthread *uth) {
+    struct a6_scheduler *sched = uth->sched;
+    list_del(intrusion_from_ptr(uth));
+    list_add_tail(intrusion_from_ptr(uth), &(uth->sched->dying));
+}
+
 int a6_send_uthread_request(struct a6_scheduler *sched, void (*func)(void *), void *arg) {
     if (pthread_spin_trylock(&(sched->qreqs.lock)) == 0) {
         struct a6_uth_req *rp = malloc(sizeof(struct a6_uth_req));
@@ -182,10 +188,17 @@ void schedloop(struct a6_scheduler *s) {
         if (likely(list_is_empty(&(s->running)) == 0)) {
             struct link_index *target = s->running.next;
             list_del(target);
+            list_add_tail(target, &(s->running));
             struct a6_uthread *uth_next = intruded_val(target, struct a6_uthread);
             curr_uth = uth_next;
             curr_uth->sched = s;
             a6_uthread_launch(uth_next, &sched_cntx);
+        }
+        // 5. bury the dead
+        list_foreach_remove(&(s->dying)) {
+            detach_current_iterator;
+            struct a6_uthread *uth_dying = intrusive_ref(struct a6_uthread);
+            a6_uthread_destroy(uth_dying);
         }
     }
 }
