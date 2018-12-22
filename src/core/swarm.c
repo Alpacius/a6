@@ -42,6 +42,10 @@ void a6_swarm_destroy(struct a6_swarm *swarm) {
     free(a6_swarm_ruin(swarm));
 }
 
+int a6_swarm_launch(struct a6_swarm *swarm) {
+    return a6_mthread_pool_launch(swarm->mthpool);
+}
+
 int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg) {
     uint32_t idx = __atomic_fetch_add(&(swarm->slb.idx), 1, __ATOMIC_ACQ_REL) % swarm->slb.size;
     return a6_send_uthread_request(scheduler_at(swarm->mthpool, idx), func, arg);
@@ -55,4 +59,14 @@ int a6_read_barrier_simple(int fd, uint32_t options) {
 int a6_write_barrier_simple(int fd, uint32_t options) {
     struct a6_uthread *uth = current_uthread();
     return a6_simple_write(uth, uth->sched->iomon, fd, options);
+}
+
+int a6_read_barrier_oneshot(int fd, uint32_t options) {
+    struct a6_uthread *uth = current_uthread();
+    return a6_oneshot_read(uth, uth->sched->iomon, fd, options);
+}
+
+int a6_write_barrier_oneshot(int fd, uint32_t options) {
+    struct a6_uthread *uth = current_uthread();
+    return a6_oneshot_write(uth, uth->sched->iomon, fd, options);
 }

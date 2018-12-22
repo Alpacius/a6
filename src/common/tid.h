@@ -4,6 +4,7 @@
 #define     _GNU_SOURCE
 #endif      // _GNU_SOURCE
 
+#include    <stdint.h>
 #include    <unistd.h>
 #include    <sys/syscall.h>
 #include    <common/miscutils.h>

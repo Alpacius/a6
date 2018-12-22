@@ -37,10 +37,12 @@ int a6_mthread_init(struct a6_mthread *mth, struct a6_mthread_pool *pool) {
 
 static
 struct a6_mthread *a6_mthread_ruin(struct a6_mthread *mth) {
-    return 
-        a6_iomonitor_destroy(mth->iomon),
-        a6_scheduler_ruin(&(mth->sched)),
-        mth;
+    a6_iomonitor_destroy(mth->iomon);
+    a6_scheduler_ruin(&(mth->sched));
+    void *ptret = NULL;
+    pthread_cancel(mth->ptid);
+    pthread_join(mth->ptid, &ptret);
+    return mth;
 }
 
 static
