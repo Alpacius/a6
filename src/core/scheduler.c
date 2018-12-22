@@ -1,6 +1,7 @@
 #include    <core/uthread.h>
 #include    <core/scheduler.h>
 #include    <core/iomonitor.h>
+#include    <core/iomon_internal.h>
 
 static __thread struct a6_uthread *curr_uth = NULL;
 static __thread struct a6_uthread *curr_limbo = NULL;
@@ -41,6 +42,11 @@ int sched_retimeout(struct a6_iomonitor *iomon, void *sched_p) {
 }
 
 static inline
+int sched_reenable_blocking(struct a6_iomonitor *iomon, void *sched_p) {
+    iomon->current_state.timeout = -1;
+}
+
+static inline
 struct a6_uthread *uth_from_req(struct a6_uth_req *req) {
     struct a6_uthread *uth = a6_uthread_create(req->func, req->arg, DEFAULT_N_STKPAGES);
     if (req->dispose)
@@ -77,6 +83,7 @@ struct a6_scheduler *a6_scheduler_init(struct a6_scheduler *sched, uint64_t max_
         (sched->baseinfo.max_n_uth = max_n_uth), (sched->iomon = iomon);
     list_init(&(sched->qreqs.queue)), pthread_spin_init(&(sched->qreqs.lock), PTHREAD_PROCESS_PRIVATE);
     a6_evadaptor_init(&(sched->evchan));
+    a6i_ltrd_fd_(iomon, a6_evadaptor_read_end(&(sched->evchan)));
     // initialize io extension actions
     {
         // release qreqs
@@ -87,6 +94,10 @@ struct a6_scheduler *a6_scheduler_init(struct a6_scheduler *sched, uint64_t max_
         sched->ioext_hooks[1].arg = sched;
         sched->ioext_hooks[1].hook = sched_retimeout;
         a6_attach_ioext_hook(iomon, &(sched->ioext_hooks[1]), IDX_IOEXT_PREPOLL);
+        // reenable blocking
+        sched->ioext_hooks[2].arg = sched;
+        sched->ioext_hooks[2].hook = sched_reenable_blocking;
+        a6_attach_ioext_hook(iomon, &(sched->ioext_hooks[2]), IDX_IOEXT_POSTED);
     }
     return (curr_uth = NULL), sched;
 }
@@ -144,9 +155,20 @@ void schedloop(struct a6_scheduler *s) {
         list_init(&qreqs);
         sched_acquire_qreqs(s);
         {
-            list_move(&qreqs, &(s->qreqs.queue));
+            if (!list_is_empty(&(s->qreqs.queue))) {
+                list_move(&qreqs, &(s->qreqs.queue));
+                list_foreach_remove(&qreqs) {
+                    detach_current_iterator;
+                    struct a6_uth_req *req = intrusive_ref(struct a6_uth_req);
+                    struct a6_uthread *uth_new = uth_from_req(req);
+                    if (likely(uth_new != NULL))
+                        list_add_tail(intrusion_from_ptr(uth_new), &(s->running));
+                }
+            }
             // 2. polling
             struct link_index *pollables_p = pollables;     // Slience!
+            for (int idx = 0; idx < N_CQUEUES; idx++)
+                list_init(&(pollables[idx]));
             a6_iomonitor_poll(s->iomon, &pollables_p, N_CQUEUES, sched_collect, 0);
         }
         // 3. merge requests & rescheduled uthreads into running queue
@@ -156,13 +178,6 @@ void schedloop(struct a6_scheduler *s) {
                 list_add_tail(iterator, &(s->running));
             }
         // TODO acuqire qreqs again for better slb performance
-        list_foreach_remove(&qreqs) {
-            detach_current_iterator;
-            struct a6_uth_req *req = intrusive_ref(struct a6_uth_req);
-            struct a6_uthread *uth_new = uth_from_req(req);
-            if (likely(uth_new != NULL))
-                list_add_tail(intrusion_from_ptr(uth_new), &(s->running));
-        }
         // 4. resched
         if (likely(list_is_empty(&(s->running)) == 0)) {
             struct link_index *target = s->running.next;
@@ -170,7 +185,7 @@ void schedloop(struct a6_scheduler *s) {
             struct a6_uthread *uth_next = intruded_val(target, struct a6_uthread);
             curr_uth = uth_next;
             curr_uth->sched = s;
-            a6_uthread_switch(uth_next, &sched_cntx);
+            a6_uthread_launch(uth_next, &sched_cntx);
         }
     }
 }

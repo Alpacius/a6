@@ -16,7 +16,7 @@ struct a6_iomonitor *a6_iomonitor_create(int cap) {
     // TODO timer heap init
     for (int i = 0; i < N_IOEXT_CHAINS; i++)
         list_init(&(iomon->ioext_chains[i]));
-    return (iomon->cap = cap), iomon;
+    return (iomon->current_state.timeout = -1), (iomon->cap = cap), iomon;
 }
 
 void a6_iomonitor_destroy(struct a6_iomonitor *iomon) {
@@ -131,7 +131,7 @@ int a6_iomonitor_poll(
         } \
     } while (0)
     // TODO check timer & timeout
-    iomon->current_state.timeout = -1;
+    //iomon->current_state.timeout = -1;
     ioext_run(iomon, IDX_IOEXT_PREPOLL);
     int nfds = epoll_wait(iomon->epfd, iomon->epevents, iomon->cap, iomon->current_state.timeout);
     ioext_run(iomon, IDX_IOEXT_PRETIMED);

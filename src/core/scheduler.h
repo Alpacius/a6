@@ -9,7 +9,7 @@
 
 struct a6_iomonitor;
 
-#define     N_IOEXT_ACTS        2
+#define     N_IOEXT_ACTS        3
 
 struct a6_scheduler {
     intrusive;
