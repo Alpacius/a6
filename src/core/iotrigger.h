@@ -22,7 +22,7 @@
         k__.type = A6_WAITK_PLAIN; \
         k__.fd.i = (fd_); \
         k__.uth = (uth_); \
-        int r__ = a6_prepare_read_quick((iomon_), k__.uth, k__.fd.i, &k__, (options_), ##__VA_ARGS__); \
+        int r__ = a6_prepare_write_quick((iomon_), k__.uth, k__.fd.i, &k__, (options_), ##__VA_ARGS__); \
         a6_uth_blocking; \
         uthread_yield; \
         r__; \
