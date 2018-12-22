@@ -35,7 +35,7 @@ struct a6_iomonitor {
 
 struct a6_ioev_collector {
     intrusive;
-    void (*collect)(struct a6_ioevent *, struct link_index **, uint32_t);
+    void (*collect)(struct a6_ioevent *, struct link_index *, uint32_t);
 };
 
 int a6_prepare_event_quick(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, uint32_t main_ev, void *udata, uint32_t options, ...);

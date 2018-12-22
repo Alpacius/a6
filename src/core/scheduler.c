@@ -152,6 +152,7 @@ void a6_scheduler_destroy(struct a6_scheduler *sched) {
 void schedloop(struct a6_scheduler *s) {
     struct link_index qreqs;
     struct link_index pollables[N_CQUEUES];
+    struct link_index *p_pollables[N_CQUEUES] = { &(pollables[0]), &(pollables[1]), &(pollables[2]) };
     struct a6_uthread sched_cntx;
     curr_limbo = &sched_cntx;
     curr_sched = s;
@@ -172,10 +173,9 @@ void schedloop(struct a6_scheduler *s) {
                 }
             }
             // 2. polling
-            struct link_index *pollables_p = pollables;     // Slience!
             for (int idx = 0; idx < N_CQUEUES; idx++)
                 list_init(&(pollables[idx]));
-            a6_iomonitor_poll(s->iomon, &pollables_p, N_CQUEUES, sched_collect, 0);
+            a6_iomonitor_poll(s->iomon, p_pollables, N_CQUEUES, sched_collect, 0);
         }
         // 3. merge requests & rescheduled uthreads into running queue
         for (int i = 0; i < N_CQUEUES; i++)
@@ -194,7 +194,7 @@ void schedloop(struct a6_scheduler *s) {
             curr_uth->sched = s;
             a6_uthread_launch(uth_next, &sched_cntx);
         }
-        // 5. bury the dead
+        // 5. bury the deads
         list_foreach_remove(&(s->dying)) {
             detach_current_iterator;
             struct a6_uthread *uth_dying = intrusive_ref(struct a6_uthread);
