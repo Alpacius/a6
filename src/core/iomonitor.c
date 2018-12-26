@@ -82,6 +82,7 @@ a6_fdwrap a6_prepare_event_keepalive(struct a6_iomonitor *iomon, struct a6_uthre
     return (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, a6_fdwrap_fd(fdw), &ev) == 0) ? a6_fdwrap_mark_reg(fdw) : a6_fdwrap_mark_err(fdw);
 }
 
+
 int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, void *udata, uint32_t options, ...) {
     struct epoll_event ev;
     (ev.data.ptr = uth), (ev.events |= ((EPOLLIN|build_ep_events_aux(options)) & ~EPOLLOUT)|EPOLLONESHOT), (ev.data.ptr = udata);
@@ -93,7 +94,7 @@ int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, 
     }
     if (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
         int errsv = errno;
-        return (errsv == EEXIST) ? epoll_ctl(iomon->epfd, EPOLL_CTL_MOD, fd, &ev) : 0;
+        return (errsv == EEXIST) ? (epoll_ctl(iomon->epfd, EPOLL_CTL_MOD, fd, &ev) != -1) : 0;
     }
     return 1;
 }
@@ -109,7 +110,7 @@ int a6_prepare_write_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth,
     }
     if (epoll_ctl(iomon->epfd, EPOLL_CTL_MOD, fd, &ev) == -1) {
         int errsv = errno;
-        return (errsv == ENOENT) ? epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, fd, &ev) : 0;
+        return (errsv == ENOENT) ? (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, fd, &ev) != -1) : 0;
     }
     return 1;
 }

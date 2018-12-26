@@ -149,6 +149,24 @@ void a6_scheduler_destroy(struct a6_scheduler *sched) {
     free(a6_scheduler_ruin(sched));
 }
 
+struct a6_uth_req a6i_req_steal(struct a6_scheduler *sched) {
+    struct a6_uth_req ur = { .func = NULL, .arg = NULL, .dispose = NULL };
+    if (pthread_spin_trylock(&(sched->qreqs.lock)) == 0) {
+        if (!list_is_empty(&(sched->qreqs.queue))) {
+            struct link_index *target = sched->qreqs.queue.next;
+            list_del(target);
+            pthread_spin_unlock(&(sched->qreqs.lock));
+            struct a6_uth_req *urp = intruded_val(target, struct a6_uth_req);
+            (ur.arg = urp->arg), (ur.func = urp->func);
+            if (urp->dispose)
+                urp->dispose(urp);
+            return ur;
+        } else
+            pthread_spin_unlock(&(sched->qreqs.lock));
+    }
+    return ur;
+}
+
 void schedloop(struct a6_scheduler *s) {
     struct link_index qreqs;
     struct link_index pollables[N_CQUEUES];
@@ -192,7 +210,8 @@ void schedloop(struct a6_scheduler *s) {
             struct a6_uthread *uth_next = intruded_val(target, struct a6_uthread);
             curr_uth = uth_next;
             curr_uth->sched = s;
-            a6_uthread_launch(uth_next, &sched_cntx);
+            a6_uthread_switch(uth_next, &sched_cntx);
+            //a6_uthread_launch(uth_next, &sched_cntx);
         }
         // 5. bury the deads
         list_foreach_remove(&(s->dying)) {
