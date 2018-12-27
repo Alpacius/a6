@@ -18,6 +18,14 @@ struct a6_uthread *current_uthread(void) {
     return curr_uth;
 }
 
+void mark_self_blocking(void) {
+    curr_uth = NULL;
+}
+
+void mark_self_alive(struct a6_uthread *uth) {
+    curr_uth = uth;
+}
+
 struct a6_uthread *current_limbo(void) {
     return curr_limbo;
 }
@@ -63,6 +71,7 @@ void a6i_mark_dying(struct a6_uthread *uth) {
     struct a6_scheduler *sched = uth->sched;
     list_del(intrusion_from_ptr(uth));
     list_add_tail(intrusion_from_ptr(uth), &(uth->sched->dying));
+    curr_uth = NULL;
 }
 
 int a6_send_uthread_request(struct a6_scheduler *sched, void (*func)(void *), void *arg) {
@@ -196,6 +205,7 @@ void schedloop(struct a6_scheduler *s) {
             a6_iomonitor_poll(s->iomon, p_pollables, N_CQUEUES, sched_collect, 0);
         }
         // 3. merge requests & rescheduled uthreads into running queue
+        // TODO optimization
         for (int i = 0; i < N_CQUEUES; i++)
             list_foreach_remove(&(pollables[i])) {
                 detach_current_iterator;
@@ -211,9 +221,8 @@ void schedloop(struct a6_scheduler *s) {
             curr_uth = uth_next;
             curr_uth->sched = s;
             a6_uthread_switch(uth_next, &sched_cntx);
-            //a6_uthread_launch(uth_next, &sched_cntx);
         }
-        // 5. bury the deads
+        // 5. bury the dead
         list_foreach_remove(&(s->dying)) {
             detach_current_iterator;
             struct a6_uthread *uth_dying = intrusive_ref(struct a6_uthread);

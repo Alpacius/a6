@@ -5,6 +5,7 @@ void a6i_mark_dying(struct a6_uthread *uth);
 struct a6_uth_req a6i_req_steal(struct a6_scheduler *sched);
 
 struct a6_uthread *current_limbo(void);
+void mark_self_alive(struct a6_uthread *uth);
 
 static
 void a6_uthread_entrance(void *uthp) {
@@ -13,17 +14,19 @@ void a6_uthread_entrance(void *uthp) {
         a6_state_entry(uth);
         uth->k.entrance(uth->k.arg);
     }
-#ifndef A6_ENABLE_UTH_REUSE
+#ifdef A6_ENABLE_UTH_REUSE
     int reuse = 1;
     uint32_t extralives = 2;
     struct a6_scheduler *sched = uth->sched;
     while (reuse && --extralives) {
         reuse = 0;
         struct a6_uth_req ur = a6i_req_steal(sched);
-        if (ur.func)
+        if (ur.func) {
             (reuse = 1), (uth->k.entrance = ur.func), (uth->k.arg = ur.arg);
-        a6_state_entry(uth);
-        uth->k.entrance(uth->k.arg);
+            mark_self_alive(uth);
+            a6_state_entry(uth);
+            uth->k.entrance(uth->k.arg);
+        }
     }
 #endif
     a6i_mark_dying(uth);
