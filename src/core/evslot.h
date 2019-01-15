@@ -45,3 +45,8 @@ static inline
 struct link_index *a6_evslots_pick(struct a6_evslots *tbl, int key) {
     return tbl->slots + evtbl_idx(key);
 }
+
+static inline
+void a6_evslots_add(struct a6_evslots *tbl, int key, struct link_index *val) {
+    list_add_tail(val, tbl->slots + evtbl_idx(key));
+}
