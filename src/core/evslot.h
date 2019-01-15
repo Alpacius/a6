@@ -42,7 +42,7 @@ void a6_evslots_destroy(struct a6_evslots *tbl) {
     free(tbl);
 }
 
-static
+static inline
 struct link_index *a6_evslots_pick(struct a6_evslots *tbl, int key) {
     return tbl->slots + evtbl_idx(key);
 }
