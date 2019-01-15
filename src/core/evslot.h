@@ -1,7 +1,6 @@
 #pragma once
 
 #include    <common/stdc_common.h>
-#include    <common/linux_common.h>
 #include    <common/list.h>
 
 #define     N_EVSLOTS_NORMAL        8209
