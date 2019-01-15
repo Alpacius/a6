@@ -13,7 +13,7 @@
 #define     N_EVSLOTS               N_EVSLOTS_EXTENDED
 #endif
 
-#ifndef     A6_SAFE_MODULE
+#ifndef     A6_SAFE_MODULO
 #define     evtbl_idx(i_)           ((i_) % N_EVSLOTS)
 #else
 #define     evtbl_idx(i_) \
