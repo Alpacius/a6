@@ -3,7 +3,6 @@
 #include    <core/waitk.h>
 #include    <core/evslot.h>
 
-
 static inline
 void a6_ioev_pick(struct a6_evslots *tbl, int key, struct link_index *storage) {
     struct link_index *branch = a6_evslots_peek(tbl, key);
