@@ -2,6 +2,7 @@
 
 #include    <stddef.h>
 #include    <stdint.h>
+#include    <common/list.h>
 #include    <core/fdwrap.h>
 
 struct a6_uthread;
