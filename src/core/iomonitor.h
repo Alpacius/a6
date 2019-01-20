@@ -6,6 +6,7 @@
 #include    <core/evadaptor_afunix.h>
 #include    <core/ioext.h>
 #include    <core/waitk.h>
+#include    <core/evslot_k.h>
 
 struct a6_uthread;
 
@@ -24,6 +25,7 @@ struct a6_iomonitor {
     intrusive;
     int epfd;
     struct a6_evadaptor extevch;
+    struct a6_evslots *evtbl;
     // TODO timer heap
     int cap;
     struct {
@@ -38,10 +40,10 @@ struct a6_ioev_collector {
     void (*collect)(struct a6_ioevent *, struct link_index *, uint32_t);
 };
 
-int a6_prepare_event_quick(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, uint32_t main_ev, void *udata, uint32_t options, ...);
-a6_fdwrap a6_prepare_event_keepalive(struct a6_iomonitor *iomon, struct a6_uthread *uth, a6_fdwrap fdw, uint32_t main_ev, void *udata, uint32_t options, ...);
-int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, void *udata, uint32_t options, ...);
-int a6_prepare_write_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, void *udata, uint32_t options, ...);
+int a6_prepare_event_quick(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, uint32_t main_ev, struct a6_waitk *udata, uint32_t options, ...);
+a6_fdwrap a6_prepare_event_keepalive(struct a6_iomonitor *iomon, struct a6_uthread *uth, a6_fdwrap fdw, uint32_t main_ev, struct a6_waitk *udata, uint32_t options, ...);
+int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, struct a6_waitk *udata, uint32_t options, ...);
+int a6_prepare_write_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, struct a6_waitk *udata, uint32_t options, ...);
 
 #define     a6_prepare_read_quick(i_, u_, f_, v_, o_, ...) \
     a6_prepare_event_quick((i_), (u_), (f_), EPOLLIN & EPOLLOUT, (v_), (o_), ##__VA_ARGS__)

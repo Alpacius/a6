@@ -44,6 +44,7 @@ struct a6_waitk {
             case A6_WAITK_LTERM: \
                 fd_real_ = a6_fdwrap_fd(k__ op_ fd.w); \
                 break; \
+            case A6_WAITK_DUMMY: \
             default: \
                 fd_real_ = A6_FD_DUMMY; \
         } \

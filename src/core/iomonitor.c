@@ -1,16 +1,21 @@
 #include    <core/iomonitor.h>
 #include    <core/uthread.h>
 
+struct a6_evslots *a6i_curr_evslots(void);
+
 struct a6_iomonitor *a6_iomonitor_create(int cap) {
     struct a6_iomonitor *iomon = malloc(sizeof(struct a6_iomonitor) + sizeof(struct epoll_event) * cap);
     if (unlikely(iomon == NULL))
         return NULL;
-    if (unlikely(socketpair(AF_UNIX, SOCK_STREAM, 0, iomon->extevch.fdpair) == -1))
+    if (unlikely((iomon->evtbl = a6_evslots_create()) == NULL))
         return free(iomon), NULL;
+    if (unlikely(socketpair(AF_UNIX, SOCK_STREAM, 0, iomon->extevch.fdpair) == -1))
+        return a6_evslots_destroy(iomon->evtbl), free(iomon), NULL;
     if (unlikely((iomon->epfd = epoll_create1(EPOLL_CLOEXEC)) == -1))
         return 
             close(a6_evadaptor_read_end(&(iomon->extevch))), 
             close(a6_evadaptor_write_end(&(iomon->extevch))),
+            a6_evslots_destroy(iomon->evtbl),
             free(iomon),
             NULL;
     // TODO timer heap init
@@ -22,6 +27,7 @@ struct a6_iomonitor *a6_iomonitor_create(int cap) {
 void a6_iomonitor_destroy(struct a6_iomonitor *iomon) {
     close(iomon->epfd);
     close(a6_evadaptor_read_end(&(iomon->extevch))), close(a6_evadaptor_write_end(&(iomon->extevch)));
+    a6_evslots_destroy(iomon->evtbl);
     free(iomon);
 }
 
@@ -52,15 +58,28 @@ void handle_timeout_event(struct a6_iomonitor *iomon, uint32_t options, va_list 
     // TODO implementation
 }
 
-int a6_prepare_event_quick(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, uint32_t main_ev, void *udata, uint32_t options, ...) {
+static inline
+void a6i_iomon_add_k(struct a6_iomonitor *iomon, struct a6_waitk *k) {
+    a6_ioev_add(iomon->evtbl, k);
+}
+
+// TODO macro instead of inlined function
+static inline
+void a6i_ioev_attach_k(struct a6_waitk *k) {
+    struct a6_evslots *evtbl = a6i_curr_evslots();
+    a6_ioev_add(evtbl, k);
+}
+
+int a6_prepare_event_quick(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, uint32_t main_ev, struct a6_waitk *udata, uint32_t options, ...) {
     struct epoll_event ev;
-    (ev.data.ptr = uth), (ev.events |= main_ev|build_ep_events_aux(options)), (ev.data.ptr = udata);
+    (ev.events |= main_ev|build_ep_events_aux(options)), (ev.data.fd = fd);
     {
         va_list vargs;
         va_start(vargs, options);
         handle_timeout_event(iomon, options, vargs);
         va_end(vargs);
     }
+    a6i_ioev_attach_k(udata);
     if (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
         int errsv = errno;
         return likely(errsv == EEXIST) ? 1 : 0;
@@ -68,30 +87,32 @@ int a6_prepare_event_quick(struct a6_iomonitor *iomon, struct a6_uthread *uth, i
     return 1;
 }
 
-a6_fdwrap a6_prepare_event_keepalive(struct a6_iomonitor *iomon, struct a6_uthread *uth, a6_fdwrap fdw, uint32_t main_ev, void *udata, uint32_t options, ...) {
+a6_fdwrap a6_prepare_event_keepalive(struct a6_iomonitor *iomon, struct a6_uthread *uth, a6_fdwrap fdw, uint32_t main_ev, struct a6_waitk *udata, uint32_t options, ...) {
     if (a6_fdwrap_exists(fdw))
         return fdw;
     struct epoll_event ev;
-    (ev.data.ptr = uth), (ev.events |= main_ev|build_ep_events_aux(options)), (ev.data.ptr = udata);
+    (ev.events |= main_ev|build_ep_events_aux(options)), (ev.data.fd = a6_fdwrap_fd(fdw));
     {
         va_list vargs;
         va_start(vargs, options);
         handle_timeout_event(iomon, options, vargs);
         va_end(vargs);
     }
+    a6i_ioev_attach_k(udata);
     return (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, a6_fdwrap_fd(fdw), &ev) == 0) ? a6_fdwrap_mark_reg(fdw) : a6_fdwrap_mark_err(fdw);
 }
 
 
-int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, void *udata, uint32_t options, ...) {
+int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, struct a6_waitk *udata, uint32_t options, ...) {
     struct epoll_event ev;
-    (ev.data.ptr = uth), (ev.events |= ((EPOLLIN|build_ep_events_aux(options)) & ~EPOLLOUT)|EPOLLONESHOT), (ev.data.ptr = udata);
+    (ev.events |= ((EPOLLIN|build_ep_events_aux(options)) & ~EPOLLOUT)|EPOLLONESHOT), (ev.data.fd = fd);
     {
         va_list vargs;
         va_start(vargs, options);
         handle_timeout_event(iomon, options, vargs);
         va_end(vargs);
     }
+    a6i_ioev_attach_k(udata);
     if (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
         int errsv = errno;
         return (errsv == EEXIST) ? (epoll_ctl(iomon->epfd, EPOLL_CTL_MOD, fd, &ev) != -1) : 0;
@@ -99,15 +120,16 @@ int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, 
     return 1;
 }
 
-int a6_prepare_write_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, void *udata, uint32_t options, ...) {
+int a6_prepare_write_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, struct a6_waitk *udata, uint32_t options, ...) {
     struct epoll_event ev;
-    (ev.data.ptr = uth), (ev.events |= ((EPOLLOUT|build_ep_events_aux(options)) & ~EPOLLIN)|EPOLLONESHOT), (ev.data.ptr = udata);
+    (ev.events |= ((EPOLLOUT|build_ep_events_aux(options)) & ~EPOLLIN)|EPOLLONESHOT), (ev.data.fd = fd);
     {
         va_list vargs;
         va_start(vargs, options);
         handle_timeout_event(iomon, options, vargs);
         va_end(vargs);
     }
+    a6i_ioev_attach_k(udata);
     if (epoll_ctl(iomon->epfd, EPOLL_CTL_MOD, fd, &ev) == -1) {
         int errsv = errno;
         return (errsv == ENOENT) ? (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, fd, &ev) != -1) : 0;
@@ -141,9 +163,21 @@ int a6_iomonitor_poll(
     // TODO timed events
     ioext_run(iomon, IDX_IOEXT_PREIO);
     for (int i = 0; i < nfds; i++) {
-        struct a6_waitk *k = iomon->epevents[i].data.ptr;
-        struct a6_ioevent ioev = { .type = A6_IOEV_EP, .fd = a6_waitk_p_fd(k), .udata = k };
-        collect(&ioev, res_groups, n_res_groups);
+        // TODO cleanup & refactor such mess
+        int fd_target = iomon->epevents[i].data.fd;
+        if (fd_target != A6_FD_DUMMY) {
+            struct link_index k_targets;
+            a6_ioev_pick(iomon->evtbl, fd_target, &k_targets);
+            list_foreach(&k_targets) {
+                __auto_type k = intrusive_ref(struct a6_waitk);
+                struct a6_ioevent ioev = { .type = A6_IOEV_EP, .fd = a6_waitk_p_fd(k), .udata = k };
+                collect(&ioev, res_groups, n_res_groups);
+            }
+        } else {
+            struct a6_waitk *k = a6_ioev_pick_(iomon->evtbl, fd_target);
+            struct a6_ioevent ioev = { .type = A6_IOEV_EP, .fd = a6_waitk_p_fd(k), .udata = k };
+            collect(&ioev, res_groups, n_res_groups);
+        }
     }
     ioext_run(iomon, IDX_IOEXT_POSTED);
     return 1;

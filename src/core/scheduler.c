@@ -30,6 +30,10 @@ struct a6_uthread *current_limbo(void) {
     return curr_limbo;
 }
 
+struct a6_evslots *a6i_curr_evslots(void) {
+    return curr_sched->iomon->evtbl;
+}
+
 static inline
 int sched_acquire_qreqs(struct a6_scheduler *sched) {
     return pthread_spin_lock(&(sched->qreqs.lock));
