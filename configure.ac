@@ -11,6 +11,14 @@ LT_INIT
 AC_ARG_ENABLE([common-arch], AS_HELP_STRING([--enable-common-arch], [enable portable architecture supports]))
 AM_CONDITIONAL([ENABLE_COMMON_ARCH], [test -n "${enable_common_arch}"])
 
+AC_CANONICAL_HOST
+A6_CNTX_IMPL=""
+AS_CASE([$host_cpu],
+        [x86_64],
+        [
+            A6_CNTX_IMPL="src/core/mcontext_x64.S"
+        ])
+
 AC_PROG_CC
 AC_CHECK_LIB(pthread, pthread_create)
 

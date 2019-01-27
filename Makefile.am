@@ -21,7 +21,7 @@ liba6_la_SOURCES= \
 				  src/core/uthread.c \
 				  src/core/uthread_lifespan.c
 if !ENABLE_COMMON_ARCH
-liba6_la_SOURCES+= src/core/mcontext_x64.S
+liba6_la_SOURCES+= A6_CNTX_IMPL
 endif
 
 a6includedir=$(includedir)/a6
