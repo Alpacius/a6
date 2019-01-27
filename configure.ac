@@ -12,11 +12,11 @@ AC_ARG_ENABLE([common-arch], AS_HELP_STRING([--enable-common-arch], [enable port
 AM_CONDITIONAL([ENABLE_COMMON_ARCH], [test -n "${enable_common_arch}"])
 
 AC_CANONICAL_HOST
-A6_CNTX_IMPL=""
+A6_CNTX_ARCH_IMPL=""
 AS_CASE([$host_cpu],
         [x86_64],
         [
-            A6_CNTX_IMPL="src/core/mcontext_x64.S"
+            A6_CNTX_ARCH_IMPL="src/core/mcontext_x64.S"
         ])
 
 AC_PROG_CC
