@@ -41,7 +41,7 @@ void a6_uthread_init(struct a6_uthread *uth, void (*entrance)(void *), void *arg
     uth->sched = NULL;
     list_init(&(uth->states));
     (uth->k.cont = NULL), (uth->k.entrance = entrance), (uth->k.arg = arg), (uth->k.stkbase = stkbase), (uth->k.stksize = stksize);
-    a6_mcontext_init(&(uth->k.m), a6_uthread_entrance, uth, a6_mcontext_stack_base(stkbase, stksize));
+    a6_mcontext_init(&(uth->k.m), a6_uthread_entrance, uth, a6_mcontext_stack_base(stkbase, stksize), stksize);
 }
 
 void a6_uthread_ruin(struct a6_uthread *uth) {

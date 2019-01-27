@@ -21,7 +21,7 @@ struct a6_timer {
     } alarm;
 };
 #else
-#error      "no definition for a6_timer_index_ctl"
+#error      No definition for a6_timer_index_ctl.
 #endif
 
 #define     a6i_timer_tval(t_)      ((t_).alarm.val.epoch)

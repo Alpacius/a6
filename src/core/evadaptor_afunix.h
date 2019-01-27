@@ -4,7 +4,7 @@
 #include    <core/evadaptor.h>
 
 #ifdef      a6_evadaptor_impl
-#error      "Duplicated a6_evadaptor_impl found."
+#error      Duplicated a6_evadaptor_impl found.
 #endif      // a6_evadaptor_impl
 
 #define     a6_evadaptor_impl

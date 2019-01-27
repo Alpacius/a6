@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef     __x86_64__
-#error      "Wrong architecture: x86-64 expected."
+#error      Wrong architecture: x86-64 expected.
 #endif
 
 #ifdef      a6_mcontext
-#error      "a6_mcontext already defined."
+#error      a6_mcontext already defined.
 #endif
 
 #define     a6_mcontext                a6_mcontext_x64
@@ -30,7 +30,7 @@ struct a6_mcontext_x64 {
     uint64_t rip;
 } __attribute__((packed));
 
-void a6_mcontext_x64_init(struct a6_mcontext_x64 *mcontext, void (*entrance)(void *), void *argument, void *stack_base_real);
+void a6_mcontext_x64_init(struct a6_mcontext_x64 *mcontext, void (*entrance)(void *), void *argument, void *stack_base_real, size_t stack_size);
 void a6_mcontext_x64_switch(struct a6_mcontext_x64 *to, struct a6_mcontext_x64 *from);
 
 static inline

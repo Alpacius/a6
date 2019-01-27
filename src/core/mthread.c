@@ -89,4 +89,6 @@ void a6_mthread_pool_destroy(struct a6_mthread_pool *pool) {
 struct a6_scheduler *scheduler_at(struct a6_mthread_pool *pool, uint32_t idx) {
     if (likely(idx < pool->size))
         return &(pool->mths[idx].sched);
+    else
+        return NULL;
 }
