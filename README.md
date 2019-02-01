@@ -58,7 +58,7 @@ make install
 ## Examples
 See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
 
-## API
+## API Manual
 
 ### User-level thread pool (swarm) management 
 
