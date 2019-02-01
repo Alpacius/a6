@@ -4,15 +4,17 @@ compiler: gcc
 dist: trusty
 sudo: require
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-4.9
-
-env:
-  - CC_IN_USE="/usr/bin/gcc-4.9"
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+      env:
+        - CC_IN_USE="/usr/bin/gcc-4.9"
 
 before_install:
   - sudo unlink /usr/bin/gcc && sudo ln -s "${CC_IN_USE}" /usr/bin/gcc
