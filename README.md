@@ -15,7 +15,7 @@
 |**GCC 8**    |X86-64                         |--           |
 
 Liba6 is a lightweight user-level thread library, playing a role as an alternative to 
-traditional thread pool solution for (mostly) isolated & concurrency tasks.
+traditional thread pool solution for (mostly) isolated & concurrent I/O intensive tasks.
 
 Currently, liba6 is only supported on Linux due to platform-specified implementation of I/O poller.
 
