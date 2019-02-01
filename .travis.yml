@@ -2,7 +2,6 @@ language: c
 compiler: gcc
 
 dist: trusty
-sudo: require
 
 addons:
   apt:
@@ -12,7 +11,7 @@ addons:
       - g++-4.9
 
 env:
-  - CC_IN_USE="CC=gcc-4.9"
+  - CC_IN_USE="gcc-4.9"
 
 before_install:
   - export CC="${CC_IN_USE}"
