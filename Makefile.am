@@ -10,7 +10,6 @@ LDADD=liba6.la
 CC=gcc -std=gnu11
 LIBS=-lpthread
 
-
 lib_LTLIBRARIES=liba6.la
 liba6_la_SOURCES= \
 				  src/common/rbt.c \
