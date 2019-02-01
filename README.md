@@ -6,10 +6,10 @@
 
 |Compiler     |Context Switch Implementation  |Comments     |
 |:------------|:------------------------------|:------------|
-|**GCC 4.9**  |POSIX ucontext                 |N/A          |
-|**GCC 5**    |POSIX ucontext                 |N/A          |
-|**GCC 6**    |POSIX ucontext                 |N/A          |
-|**GCC 7**    |POSIX ucontext                 |N/A          |
-|**GCC 8**    |POSIX ucontext                 |N/A          |
-|**GCC 4.9**  |X86-64                         |N/A          |
-|**GCC 8**    |X86-64                         |N/A          |
+|**GCC 4.9**  |POSIX ucontext                 |--           |
+|**GCC 5**    |POSIX ucontext                 |--           |
+|**GCC 6**    |POSIX ucontext                 |--           |
+|**GCC 7**    |POSIX ucontext                 |--           |
+|**GCC 8**    |POSIX ucontext                 |--           |
+|**GCC 4.9**  |X86-64                         |--           |
+|**GCC 8**    |X86-64                         |--           |
