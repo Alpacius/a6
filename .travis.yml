@@ -10,6 +10,7 @@ addons:
       - gcc-6
 script: 
   - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - gcc -v
   - mkdir -p m4
   - autoreconf -ifv
   - ./configure
