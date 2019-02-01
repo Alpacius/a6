@@ -47,7 +47,7 @@ For build:
 ```
 mkdir -p m4
 autoreconf -ifv
-./configure   # optional feature --enable-arch-specified-impl for optimized implementation (currently available for `uname -m` = x86_64 only)
+./configure   # optional feature --enable-arch-specified-impl for optimized implementation (currently available for `uname -m` = "x86_64" only)
 make   # or make check for test (the same test suites on CI platforms)
 ```
 
