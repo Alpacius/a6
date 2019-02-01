@@ -35,3 +35,7 @@ Currently, liba6 is only supported on Linux due to platform-specified implementa
 
 ## May-be Goals
 * User-level lock support.
+* FFI (e.g. Perl adaptor)
+
+## Non-goals
+* Interthread communication support (e.g. channels, mailboxes).
