@@ -8,10 +8,10 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.9
+      - g++-5
 
 env:
-  - CC_IN_USE="CC=gcc-4.9"
+  - CC_IN_USE="CC=gcc-5"
 
 before_install:
   - eval "${CC_IN_USE}"
