@@ -39,3 +39,84 @@ Currently, liba6 is only supported on Linux due to platform-specified implementa
 
 ## Non-goals
 * Interthread communication support (e.g. channels, mailboxes).
+
+## Build
+For build:
+```
+mkdir -p m4
+autoreconf -ifv
+./configure    # optional feature --enable-arch-specified-impl for optimized implementation (currently available for `uname -m` = x86_64 only)
+make           # or make check for test (the same test suites on CI platforms)
+```
+
+For install of libraries (both archive and shared library):
+```
+make install
+```
+
+## Examples
+See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
+
+## API
+
+### User-level thread pool (swarm) management 
+
+#### Construct & Destruct
+
+##### Synopsis
+```C
+#include    <a6/core/swarm.h>
+
+struct a6_swarm *a6_swarm_create(uint32_t size);
+int a6_swarm_launch(struct a6_swarm *swarm);
+
+void a6_swarm_destroy(struct a6_swarm *swarm);
+```
+
+##### Description
+// TODO implementation
+
+##### Return Value
+// TODO implementation
+
+##### Thread Safety
+// TODO Safe
+
+#### Launch a user-level thread
+
+##### Synopsis
+```C
+#include    <a6/core/swarm.h>
+
+int a6_swarm_launch(struct a6_swarm *swarm);
+```
+
+##### Description
+// TODO implementation
+
+##### Return Value
+// TODO implementation
+
+##### Thread Safety
+// TODO Safe
+
+#### I/O barriers
+
+##### Synopsis
+```C
+#include    <a6/core/swarm.h>
+
+int a6_read_barrier_simple(int fd, uint32_t options);
+int a6_write_barrier_simple(int fd, uint32_t options);
+int a6_read_barrier_oneshot(int fd, uint32_t options);
+int a6_write_barrier_oneshot(int fd, uint32_t options);
+```
+
+##### Description
+// TODO implementation
+
+##### Return Value
+// TODO implementation
+
+##### Thread Safety
+// TODO Safe
