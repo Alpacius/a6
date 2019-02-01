@@ -8,14 +8,14 @@ AM_PROG_AS
 
 LT_INIT
 
-AC_ARG_ENABLE([common-arch], AS_HELP_STRING([--enable-common-arch], [enable portable architecture supports]))
-AM_CONDITIONAL([ENABLE_COMMON_ARCH], [test -n "${enable_common_arch}"])
+AC_ARG_ENABLE([arch-specified-impl], AS_HELP_STRING([--enable-arch-specified-impl], [enable architecture specified implementation (available for: x86-64)]))
+AM_CONDITIONAL([ENABLE_ARCH_SPEC_IMPL], [test -n "${enable_arch_specified_impl}"])
 
 AC_CANONICAL_HOST
 AS_CASE([$host_cpu],
         [x86_64],
         [
-            AM_CONDITIONAL([ENABLE_X86_64_CNTX], [test -z "${enable_common_arch}"])
+            AM_CONDITIONAL([ENABLE_X86_64_CNTX], [test -n "${enable_arch_specified_impl}"])
         ])
 
 AC_PROG_CC
