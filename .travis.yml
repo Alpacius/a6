@@ -1,7 +1,16 @@
 language: c
 compiler: gcc
+dist: trusty
+sudo: require
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
 script: 
-    - mkdir -p m4
-    - autoreconf -ifv
-    - ./configure
-    - make check
+  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - mkdir -p m4
+  - autoreconf -ifv
+  - ./configure
+  - make check
