@@ -7,7 +7,6 @@ sudo: require
 matrix:
   include:
     # mininal version for __auto_type support
-    - name: "gcc-4.9 posix-cntx"
     - os: linux
       addons:
         apt:
@@ -18,7 +17,6 @@ matrix:
       env:
         - CC_IN_USE="/usr/bin/gcc-4.9"
 
-    - name: "gcc-5 posix-cntx"
     - os: linux
       addons:
         apt:
@@ -29,7 +27,6 @@ matrix:
       env:
         - CC_IN_USE="/usr/bin/gcc-5"
 
-    - name: "gcc-6 posix-cntx"
     - os: linux
       addons:
         apt:
@@ -40,7 +37,6 @@ matrix:
       env:
         - CC_IN_USE="/usr/bin/gcc-6"
 
-    - name: "gcc-7 posix-cntx"
     - os: linux
       addons:
         apt:
@@ -51,7 +47,6 @@ matrix:
       env:
         - CC_IN_USE="/usr/bin/gcc-7"
 
-    - name: "gcc-8 posix-cntx"
     - os: linux
       addons:
         apt:
@@ -62,7 +57,19 @@ matrix:
       env:
         - CC_IN_USE="/usr/bin/gcc-8"
 
-    - name: "gcc-8 x86-64-cntx"
+    # x86-64 uthread context test for gcc-4.9
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+      env:
+        - CC_IN_USE="/usr/bin/gcc-4.9"
+        - ENABLE_X64_CNTX="1"
+
+    # x86-64 uthread context test for gcc-8
     - os: linux
       addons:
         apt:
