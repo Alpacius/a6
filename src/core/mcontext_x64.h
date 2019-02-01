@@ -8,7 +8,7 @@
 #error      a6_mcontext already defined.
 #endif
 
-#define     a6_mcontext                a6_mcontext_x64
+#define     a6_mcontext                struct a6_mcontext_x64
 
 #define     a6_mcontext_init           a6_mcontext_x64_init
 #define     a6_mcontext_switch         a6_mcontext_x64_switch

@@ -12,7 +12,7 @@ struct a6_uthread {
     intrusive;
     struct {
         struct a6_uthread *cont;
-        struct a6_mcontext m;
+        a6_mcontext m;
         void (*entrance)(void *);
         void *arg;
         void *stkbase;
