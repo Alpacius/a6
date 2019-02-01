@@ -61,7 +61,7 @@ See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
 
 ### User-level thread pool (swarm) management 
 
----
+#---
 
 #### Construct & Destruct
 
@@ -84,7 +84,7 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 ##### Thread Safety
 // TODO Safe
 
----
+#---
 
 #### Launch a user-level thread
 
@@ -104,7 +104,7 @@ int a6_swarm_launch(struct a6_swarm *swarm);
 ##### Thread Safety
 // TODO Safe
 
----
+#---
 
 #### I/O barriers
 
