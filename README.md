@@ -1,4 +1,4 @@
-# a6 - linux-based user-thread executor library for I/O intensive tasks
+# liba6 - linux-based user-thread executor library
 
 |CI           |Build on OS   |Host OS     |Build Status     |
 |:------------|:------------|:------------|:----------------|
