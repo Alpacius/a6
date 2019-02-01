@@ -3,20 +3,18 @@ compiler: gcc
 
 dist: trusty
 
-matrix:
-  include:
-    - os: linux
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - g++-4.9
-  env:
-    - MATRIX_EVAL="CC=gcc-4.9"
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.9
+
+env:
+  - CC_IN_USE="CC=gcc-4.9"
 
 before_install:
-  - eval "${MATRIX_EVAL}"
+  - eval "${CC_IN_USE}"
 
 script: 
   - mkdir -p m4
