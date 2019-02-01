@@ -5,9 +5,11 @@ AM_CPPFLAGS=-I$(CWD)/src
 if ENABLE_COMMON_ARCH
 AM_CPPFLAGS+= -DA6_COMMON_MCNTX
 endif
+LDADD=liba6.la
 
 CC=gcc -std=gnu11
 LIBS=-lpthread
+
 
 lib_LTLIBRARIES=liba6.la
 liba6_la_SOURCES= \
@@ -20,10 +22,15 @@ liba6_la_SOURCES= \
 				  src/core/timer_queue.c \
 				  src/core/uthread.c \
 				  src/core/uthread_lifespan.c
-if !ENABLE_COMMON_ARCH
-liba6_la_SOURCES+= A6_CNTX_ARCH_IMPL
+if ENABLE_X86_64_CNTX
+liba6_la_SOURCES+= src/core/mcontext_x64.S
 endif
 
 a6includedir=$(includedir)/a6
 a6include_HEADERS= \
 					src/core/swarm.h
+
+check_PROGRAMS= \
+				test/echo_server_test
+
+TESTS=${check_PROGRAMS}
