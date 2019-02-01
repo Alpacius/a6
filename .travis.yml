@@ -2,6 +2,7 @@ language: c
 compiler: gcc
 
 dist: trusty
+sudo: require
 
 addons:
   apt:
