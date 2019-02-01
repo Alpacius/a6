@@ -35,7 +35,6 @@ Currently, liba6 is only supported on Linux due to platform-specified implementa
 
 ## May-be Goals
 * User-level lock support.
-* FFI (e.g. Perl adaptor)
 * Cancellation points.
 * Limited preemptive rescheduling.
 
