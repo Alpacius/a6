@@ -61,8 +61,6 @@ See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
 
 ### User-level thread pool (swarm) management 
 
-#
-
 #### Construct & Destruct
 
 ##### Synopsis
