@@ -97,7 +97,7 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 ```C
 #include    <a6/core/swarm.h>
 
-int a6_swarm_launch(struct a6_swarm *swarm);
+int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg);
 ```
 
 ##### Description
