@@ -74,13 +74,19 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 ```
 
 ##### Description
+```
 // TODO implementation
+```
 
 ##### Return Value
+```
 // TODO implementation
+```
 
 ##### Thread Safety
+```
 // TODO Safe
+```
 
 #
 
@@ -94,13 +100,19 @@ int a6_swarm_launch(struct a6_swarm *swarm);
 ```
 
 ##### Description
+```
 // TODO implementation
+```
 
 ##### Return Value
+```
 // TODO implementation
+```
 
 ##### Thread Safety
+```
 // TODO Safe
+```
 
 #
 
@@ -117,10 +129,16 @@ int a6_write_barrier_oneshot(int fd, uint32_t options);
 ```
 
 ##### Description
+```
 // TODO implementation
+```
 
 ##### Return Value
+```
 // TODO implementation
+```
 
 ##### Thread Safety
+```
 // TODO Safe
+```
