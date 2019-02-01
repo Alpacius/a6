@@ -2,21 +2,23 @@ language: c
 compiler: gcc
 
 dist: trusty
+sudo: require
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.9
+      - gcc-4.9
 
 env:
-  - CC_IN_USE="gcc-4.9"
+  - CC_IN_USE="/usr/bin/gcc-4.9"
 
 before_install:
-  - export CC="${CC_IN_USE}"
+  - sudo unlink /usr/bin/gcc && sudo ln -s "${CC_IN_USE}" /usr/bin/gcc
 
 script: 
+  - gcc --version
   - mkdir -p m4
   - autoreconf -ifv
   - ./configure
