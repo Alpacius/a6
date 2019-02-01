@@ -90,4 +90,6 @@ script:
   - gcc --version
   - mkdir -p m4
   - autoreconf -ifv
+  - echo "build_arch=`uname -m`"
+  - echo "test_command=${TEST_CMD}"
   - eval "${TEST_CMD}"
