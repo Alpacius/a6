@@ -123,8 +123,6 @@ int a6_swarm_launch(struct a6_swarm *swarm);
 ```C
 #include    <a6/core/swarm.h>
 
-int a6_read_barrier_simple(int fd, uint32_t options);
-int a6_write_barrier_simple(int fd, uint32_t options);
 int a6_read_barrier_oneshot(int fd, uint32_t options);
 int a6_write_barrier_oneshot(int fd, uint32_t options);
 ```
