@@ -3,30 +3,23 @@ compiler: gcc
 
 dist: trusty
 
-addons:
-    apt:
-        sources:
-            - ubuntu-toolchain-r-test
-        packages:
-            - gcc-5
-
 matrix:
-    include:
-        - os: linux
-        addons:
-            apt:
-                sources:
-                    - ubuntu-toolchain-r-test
-                packages:
-                    - g++-4.9
-    env:
-        - MATRIX_EVAL="CC=gcc-4.9"
+  include:
+    - os: linux
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-4.9
+  env:
+    - MATRIX_EVAL="CC=gcc-4.9"
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 script: 
-    - mkdir -p m4
-    - autoreconf -ifv
-    - ./configure
-    - make check
+  - mkdir -p m4
+  - autoreconf -ifv
+  - ./configure
+  - make check
