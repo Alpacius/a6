@@ -56,6 +56,61 @@ make install
 ```
 
 ## Examples
+A simple example:
+```C
+// simple_demo.c
+
+#include    <stdio.h>
+#include    <stdlib.h>
+#include    <string.h>
+#include    <unistd.h>
+#include    <sys/types.h>
+#include    <errno.h>
+
+#include    <a6/swarm.h>
+
+int barrier = 1;
+
+void func(void *arg) {
+    const char *uth_name = arg;
+    a6_read_barrier_oneshot(STDIN_FILENO, 0);
+    char inbuf[64];
+    ssize_t n_bytes_read = read(STDIN_FILENO, inbuf, 64);
+    if (n_bytes_read == -1) {
+        perror("read");
+        __atomic_store_n(&barrier, 0, __ATOMIC_RELEASE);
+    } else {
+        a6_write_barrier_oneshot(STDOUT_FILENO, 0);
+        dprintf(STDOUT_FILENO, "%s says: %s\n", uth_name, inbuf);
+    }
+}
+
+int main(void) {
+    struct a6_swarm *swarm = a6_swarm_create(2);
+    a6_swarm_launch(swarm);
+    a6_swarm_run(swarm, func, "uthread-1");
+    while (__atomic_load_n(&barrier, __ATOMIC_ACQUIRE));
+    getchar();
+    a6_swarm_destroy(swarm);
+    return 0;
+}
+```
+
+Compile with:
+```
+$ gcc -o simple_demo simple_demo.c -la6
+```
+
+Run with:
+```
+[user@host demo]$ ./simple_demo 
+aaaa
+uthread-1 says: aaaa
+
+
+[user@host demo]$ 
+```
+
 See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
 
 ## API Manual
@@ -66,7 +121,7 @@ See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
 
 ##### Synopsis
 ```C
-#include    <a6/core/swarm.h>
+#include    <a6/swarm.h>
 
 struct a6_swarm *a6_swarm_create(uint32_t size);
 int a6_swarm_launch(struct a6_swarm *swarm);
@@ -95,7 +150,7 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 
 ##### Synopsis
 ```C
-#include    <a6/core/swarm.h>
+#include    <a6/swarm.h>
 
 int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg);
 ```
@@ -121,7 +176,7 @@ int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg);
 
 ##### Synopsis
 ```C
-#include    <a6/core/swarm.h>
+#include    <a6/swarm.h>
 
 int a6_read_barrier_oneshot(int fd, uint32_t options);
 int a6_write_barrier_oneshot(int fd, uint32_t options);
