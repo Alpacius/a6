@@ -111,7 +111,7 @@ uthread-1 says: aaaa
 [user@host demo]$ 
 ```
 
-See [tests](https://github.com/Alpacius/a6/tree/master/test) for examples.
+See [tests](https://github.com/Alpacius/a6/tree/master/test) for more examples.
 
 ## API Manual
 
