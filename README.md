@@ -141,7 +141,7 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 
 ##### Thread Safety
 ```
-// TODO Safe
+// TODO Safe race:swarm
 ```
 
 #
@@ -167,7 +167,7 @@ int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg);
 
 ##### Thread Safety
 ```
-// TODO Safe
+// TODO Safe race:swarm
 ```
 
 #
