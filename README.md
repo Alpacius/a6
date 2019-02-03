@@ -198,7 +198,7 @@ A barrier shall be either `read` or `write`, designating the correspond I/O oper
 
 Currently `options` are not used. More optional features will be released later.
 
-Closing `fd` by calling `close(2)` causes the internal I/O monitor to remove `fd` from internal I/O poller. However, if there's
+Closing `fd` by calling `close(2)` causes the internal I/O monitor to remove `fd` from I/O event notification. However, if there's
 any uthread blocking on `fd` when closing the file descriptor, the corresponding swarm may produce undefined behaviors.
 
 Barriers must be placed __"inside"__ a uthread -- in other words, placed along the call chain of any uthread's entrance function. 
