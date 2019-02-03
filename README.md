@@ -130,16 +130,14 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 ```
 
 ##### Description
-```
-The <u>a6_swarm_create()</u> function is the only way to create a new user-level thread pool (**swarm**), with exactly 
-<u>size</u> native thread workers to carry the user-level threads. A newly created swarm is not running yet and shall 
-handle no requests until <u>a6_swarm_launch()</u> is called. However, unlaunched swarms are able to receive & store requests, 
+The `a6_swarm_create()` function is the only way to create a new user-level thread pool (**swarm**), with exactly 
+`size` native thread workers to carry the user-level threads. A newly created swarm is not running yet and shall 
+handle no requests until `a6_swarm_launch()` is called. However, unlaunched swarms are able to receive & store requests, 
 which shall be handled after launching.
 
-The <u>a6_swarm_launch()</u> function starts the target <u>swarm</u>, enabling it to handle requests.
+The `a6_swarm_launch()` function starts the target `swarm`, enabling it to handle requests.
 
-The <u>a6_swarm_destroy()</u> should be called when a <u>swarm</u> needs to be deleted.
-```
+The `a6_swarm_destroy()` should be called when a `swarm` needs to be deleted.
 
 ##### Return Value
 ```
