@@ -140,14 +140,17 @@ The `a6_swarm_launch()` function starts the target `swarm`, enabling it to handl
 The `a6_swarm_destroy()` should be called when a `swarm` needs to be deleted.
 
 ##### Return Value
-```
-// TODO implementation
-```
+On success, `a6_swarm_create()` returns a pointer to the swarm (`struct a6_swarm` is an opaque type, accessible only by
+pointers); on error, it returns `NULL`.
+
+`a6_swarm_launch` returns 1 upon successful return and 0 if any error is encountered when starting the swarm.
 
 ##### Thread Safety
-```
-// TODO Safe race:swarm
-```
+|Function                  |Thread Safety                          |
+|:-------------------------|:--------------------------------------|
+|`a6_swarm_create()`       |MT-Safe                                |
+|`a6_swarm_launch()`       |MT-Safe race:`swarm`                   |
+|`a6_swarm_destroy()`      |MT-Safe race:`swarm`                   |
 
 #
 
