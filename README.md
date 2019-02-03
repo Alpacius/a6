@@ -190,16 +190,29 @@ int a6_write_barrier_oneshot(int fd, uint32_t options);
 ```
 
 ##### Description
-```
-// TODO implementation
-```
+"Barrier" operations are used when blocking I/O is going to be performed on POSIX file descriptor `fd`, causing the current 
+uthread to yield and block if the I/O operation is not ready. The blocked uthread shall not pass the barrier until the designated 
+I/O operation on `fd` is ready,
+A barrier shall be either `read` or `write`, designating the correspond I/O operation.
+Currently `options` are not used. More optional features will be released later.
+
+Closing `fd` by calling `close(2)` causes the internal I/O monitor to remove `fd` from internal I/O poller. However, if there's
+any uthread blocking on `fd` when closing the file descriptor, the corresponding swarm may produce undefined behaviors.
+
+Barriers must be placed **"inside"** a uthread -- in other words, placed along the call chain of any uthread's entrance function. 
+Otherwise, the program may produce undefined behaviors.
+
+`oneshot` barriers sets the one-shot behavior for `fd`. That is, when a uthread passes the barrier, notification on I/O events of 
+the type (either read or write) of designated I/O operation is internally disabled. The user must call the same barrier on `fd` again 
+to rearm internal I/O event notification on the disabled I/O type. Such behavior is designed to be intuitive for barrier-based 
+synchronized I/O operations.
 
 ##### Return Value
-```
-// TODO implementation
-```
+On success, barrier operations return 1; on error, they return 0.
 
 ##### Thread Safety
-```
-// TODO Safe
-```
+All barrier operations are essentially MT-safe when placed "inside" a uthread.
+|Function                             |Thread Safety                          |
+|:------------------------------------|:--------------------------------------|
+|`a6_read_barrier_oneshot()`          |MT-safe                                |
+|`a6_write_barrier_oneshot()`         |MT-safe                                |
