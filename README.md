@@ -199,7 +199,7 @@ Currently `options` are not used. More optional features will be released later.
 Closing `fd` by calling `close(2)` causes the internal I/O monitor to remove `fd` from internal I/O poller. However, if there's
 any uthread blocking on `fd` when closing the file descriptor, the corresponding swarm may produce undefined behaviors.
 
-Barriers must be placed **"inside"** a uthread -- in other words, placed along the call chain of any uthread's entrance function. 
+Barriers must be placed __"inside"__ a uthread -- in other words, placed along the call chain of any uthread's entrance function. 
 Otherwise, the program may produce undefined behaviors.
 
 `oneshot` barriers sets the one-shot behavior for `fd`. That is, when a uthread passes the barrier, notification on I/O events of 
@@ -212,6 +212,7 @@ On success, barrier operations return 1; on error, they return 0.
 
 ##### Thread Safety
 All barrier operations are essentially MT-safe when placed "inside" a uthread.
+
 |Function                             |Thread Safety                          |
 |:------------------------------------|:--------------------------------------|
 |`a6_read_barrier_oneshot()`          |MT-safe                                |
