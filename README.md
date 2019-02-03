@@ -164,20 +164,19 @@ int a6_swarm_run(struct a6_swarm *swarm, void (*func)(void *), void *arg);
 ```
 
 ##### Description
-```
-// TODO implementation
-```
+The `a6_swarm_run()` function starts a new user-level thread (**uthread**) on the target `swarm`, to execute `func` 
+with argument `arg`. No actual execution shall be performed if `swarm` is not launched (by calling `a6_swarm_launch()`). 
+Execution of such task-running request shall begin after launch of `swarm`.
 
 ##### Return Value
-```
-// TODO implementation
-```
+On success, `a6_swarm_run()` returns 1; on error, it returns 0.
 
 ##### Thread Safety
-```
-// TODO Safe race:swarm
-```
+|Function                  |Thread Safety                          |
+|:-------------------------|:--------------------------------------|
+|`a6_swarm_run()`          |MT-Safe                                |
 
+ 
 #
 
 #### I/O barriers
