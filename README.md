@@ -194,7 +194,7 @@ int a6_write_barrier_oneshot(int fd, uint32_t options);
 uthread to yield and block if the I/O operation is not ready. The blocked uthread shall not pass the barrier until the designated 
 I/O operation on `fd` is ready,
 
-A barrier shall be either `read` or `write`, designating the correspond I/O operation.
+A barrier shall be either `read` or `write`, designating the corresponding I/O operation.
 
 Currently `options` are not used. More optional features will be released later.
 
