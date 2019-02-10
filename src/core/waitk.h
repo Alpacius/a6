@@ -15,6 +15,7 @@ struct a6_ioevent {
 
 #define     A6_IOEV_EP       0
 #define     A6_IOEV_TO       1
+#define     A6_IOEV_CR       2
 
 struct a6_waitk {
     intrusive;

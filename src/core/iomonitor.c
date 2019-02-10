@@ -176,7 +176,7 @@ int a6_iomonitor_poll(
             }
         } else {
             struct a6_waitk *k = a6_ioev_pick_(iomon->evtbl, fd_target);
-            struct a6_ioevent ioev = { .type = A6_IOEV_EP, .fd = a6_waitk_p_fd(k), .udata = k };
+            struct a6_ioevent ioev = { .type = A6_IOEV_CR, .fd = a6_waitk_p_fd(k), .udata = k };
             collect(&ioev, res_groups, n_res_groups);
         }
     }

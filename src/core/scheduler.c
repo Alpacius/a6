@@ -130,8 +130,8 @@ struct a6_scheduler *a6_scheduler_ruin(struct a6_scheduler *sched) {
 static
 void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n_queues) {
     struct a6_waitk *k = ev->udata;
-    switch (k->type) {
-        case A6_WAITK_DUMMY:
+    switch (ev->type) {
+        case A6_IOEV_CR:
             {
                 struct a6_uth_req req;
                 ssize_t rdsize = 0;
@@ -146,6 +146,7 @@ void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n
                 break;
             }
         // TODO timer events
+        case A6_IOEV_EP:
         default:
             list_add_tail(intrusion_from_ptr(k->uth), queues[CQUEUE_IORDY]);
     }
