@@ -46,13 +46,13 @@ int a6_prepare_read_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, 
 int a6_prepare_write_oneshot(struct a6_iomonitor *iomon, struct a6_uthread *uth, int fd, struct a6_waitk *udata, uint32_t options, ...);
 
 #define     a6_prepare_read_quick(i_, u_, f_, v_, o_, ...) \
-    a6_prepare_event_quick((i_), (u_), (f_), EPOLLIN & EPOLLOUT, (v_), (o_), ##__VA_ARGS__)
+    a6_prepare_event_quick((i_), (u_), (f_), EPOLLIN, (v_), (o_), ##__VA_ARGS__)
 #define     a6_prepare_write_quick(i_, u_, f_, v_, o_, ...) \
-    a6_prepare_event_quick((i_), (u_), (f_), ~EPOLLIN & EPOLLOUT, (v_), (o_), ##__VA_ARGS__)
+    a6_prepare_event_quick((i_), (u_), (f_), EPOLLOUT, (v_), (o_), ##__VA_ARGS__)
 #define     a6_prepare_read_keepalive(i_, u_, f_, v_, o_, ...) \
-    a6_prepare_event_keepalive((i_), (u_), (f_), EPOLLIN & ~EPOLLOUT, (v_), (o_), ##__VA_ARGS__)
+    a6_prepare_event_keepalive((i_), (u_), (f_), EPOLLIN, (v_), (o_), ##__VA_ARGS__)
 #define     a6_prepare_write_keepalive(i_, u_, f_, v_, o_, ...) \
-    a6_prepare_event_keepalive((i_), (u_), (f_), ~EPOLLIN & EPOLLOUT, (v_), (o_), ##__VA_ARGS__)
+    a6_prepare_event_keepalive((i_), (u_), (f_), EPOLLOUT, (v_), (o_), ##__VA_ARGS__)
 
 struct a6_iomonitor *a6_iomonitor_create(int cap);
 void a6_iomonitor_destroy(struct a6_iomonitor *iomon);
