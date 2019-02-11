@@ -130,7 +130,7 @@ void a6_swarm_destroy(struct a6_swarm *swarm);
 ```
 
 ##### Description
-The `a6_swarm_create()` function is the only way to create a new user-level thread pool (**swarm**), with exactly 
+The `a6_swarm_create()` function is the only way to create a new user-level thread pool (**swarm**), with exact 
 `size` native thread workers to carry the user-level threads. A newly created swarm is not running yet and shall 
 handle no requests until `a6_swarm_launch()` is called. However, unlaunched swarms are able to receive & store requests, 
 which shall be handled after launching.
@@ -198,8 +198,9 @@ A barrier shall be either `read` or `write`, designating the corresponding I/O o
 
 Currently `options` are not used. More optional features will be released later.
 
-Closing `fd` by calling `close(2)` causes the internal I/O monitor to remove `fd` from I/O event notification. However, if there's
-any uthread blocking on `fd` when closing the file descriptor, the corresponding swarm may produce undefined behaviors.
+Usually, closing `fd` by calling `close(2)` causes the internal I/O monitor to remove `fd` from I/O event notification if the corresponding 
+file description is also released. However, if there's any uthread blocking on `fd` when closing the file descriptor, the swarm may produce 
+undefined behaviors in further operations.
 
 Barriers must be placed __"inside"__ a uthread -- in other words, placed along the call chain of any uthread's entrance function. 
 Otherwise, the program may produce undefined behaviors.
