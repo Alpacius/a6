@@ -19,7 +19,7 @@ traditional thread pool solution for concurrent I/O intensive tasks.
 
 Currently, liba6 is only supported on Linux due to platform-specified implementation of I/O poller.
 
-## Build prerequisites
+## Build Prerequisites
 * Linux >= 2.5 (for epoll APIs)
 * GCC >= 4.9 (for `__auto_type` extension)
 
@@ -82,6 +82,7 @@ void func(void *arg) {
     } else {
         a6_write_barrier_oneshot(STDOUT_FILENO, 0);
         dprintf(STDOUT_FILENO, "%s says: %s\n", uth_name, inbuf);
+        __atomic_store_n(&barrier, 0, __ATOMIC_RELEASE);
     }
 }
 
