@@ -80,12 +80,11 @@ void func(void *arg) {
     ssize_t n_bytes_read = read(STDIN_FILENO, inbuf, 64);
     if (n_bytes_read == -1) {
         perror("read");
-        __atomic_store_n(&barrier, 0, __ATOMIC_RELEASE);
     } else {
         a6_write_barrier_oneshot(STDOUT_FILENO, 0);
         dprintf(STDOUT_FILENO, "%s says: %s\n", uth_name, inbuf);
-        __atomic_store_n(&barrier, 0, __ATOMIC_RELEASE);
     }
+    __atomic_store_n(&barrier, 0, __ATOMIC_RELEASE);
 }
 
 int main(void) {
