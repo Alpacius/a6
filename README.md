@@ -30,6 +30,7 @@ Also, it is envisaged that the library would be used in some short tutorial for 
 * Barrier-based semi-auto thread switch APIs for blocking & pollable fd-based I/O.
 * Thread-pool-styled APIs for user-level thread management.
 * Fast context switch under x86-64.
+* Friendly to dynamic libraries.
 
 ## Further Works
 * Timeouts on I/O barriers.
