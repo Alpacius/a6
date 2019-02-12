@@ -88,7 +88,9 @@ int a6_send_uthread_request(struct a6_scheduler *sched, void (*func)(void *), vo
         pthread_spin_unlock(&(sched->qreqs.lock));
     } else {
         struct a6_uth_req ri = { .func = func, .arg = arg, .dispose = NULL };
-        return (write(a6_evadaptor_write_end(&(sched->evchan)), &ri, sizeof(ri)) == sizeof(ri));
+        struct a6_req_packet rpkt = { .type = A6_REQ_TYPE_UTH };
+        rpkt.payload.r_uth = ri;
+        return (write(a6_evadaptor_write_end(&(sched->evchan)), &rpkt, sizeof(rpkt)) == sizeof(rpkt));
     }
     return 1;
 }
@@ -133,14 +135,23 @@ void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n
     switch (ev->type) {
         case A6_IOEV_CR:
             {
-                struct a6_uth_req req;
+                struct a6_req_packet rpkt;
                 ssize_t rdsize = 0;
                 do {
-                    rdsize = read(a6_evadaptor_read_end(&(curr_sched->evchan)), &req, sizeof(req));
-                    if (likely(rdsize == sizeof(struct a6_uth_req))) {
-                        struct a6_uthread *uth_new = uth_from_req(&req);
-                        if (likely(uth_new != NULL))
-                            list_add_tail(intrusion_from_ptr(uth_new), queues[CQUEUE_CREAT]);
+                    rdsize = read(a6_evadaptor_read_end(&(curr_sched->evchan)), &rpkt, sizeof(rpkt));
+                    if (likely(rdsize == sizeof(struct a6_req_packet))) {
+                        switch (rpkt.type) {
+                            case A6_REQ_TYPE_UTH: 
+                            {
+                                struct a6_uthread *uth_new = uth_from_req(&(rpkt.payload.r_uth));
+                                if (likely(uth_new != NULL))
+                                    list_add_tail(intrusion_from_ptr(uth_new), queues[CQUEUE_CREAT]);
+                                break;
+                            }
+                            default:
+                                // do nothing
+                                ;
+                        }
                     }
                 } while (rdsize > 0);
                 break;
