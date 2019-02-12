@@ -19,6 +19,8 @@ traditional thread pool solution for concurrent I/O intensive tasks.
 
 Currently, liba6 is only supported on Linux due to platform-specified implementation of I/O poller.
 
+Also, it is envisaged that the library would be used in some short tutorial for introduction on concurrency.
+
 ## Build Prerequisites
 * Linux >= 2.5 (for epoll APIs)
 * GCC >= 4.9 (for `__auto_type` extension)
