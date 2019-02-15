@@ -93,6 +93,3 @@ script:
   - echo "build_arch=`uname -m`"
   - echo "test_command=${TEST_CMD}"
   - eval "${TEST_CMD}"
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
