@@ -46,7 +46,7 @@ int a6_future_wait(struct a6_future *f) {
 #endif
     int echan = A6_ASYNC_CHAN_INIT;
     if (!__atomic_compare_exchange_n(
-                &(f->base.chan), &echan, a6_evadaptor_read_end(&(current_uthread()->sched->evchan)), 
+                &(f->base.chan), &echan, a6_evadaptor_write_end(&(current_uthread()->sched->evchan)), 
                 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
         // spinning for q.ph2
         while (__atomic_load_n(&(f->base.chan), __ATOMIC_CONSUME) != A6_ASYNC_CHAN_Q_PH2)
