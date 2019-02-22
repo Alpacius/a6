@@ -28,6 +28,11 @@ struct a6_waitk *a6_ioev_pick_(struct a6_evslots *tbl, int key) {
 }
 
 static inline
+struct link_index *a6_ioev_aim_(struct a6_evslots *tbl, int key) {
+    return a6_evslots_peek(tbl, key);
+}
+
+static inline
 void a6_ioev_add(struct a6_evslots *tbl, struct a6_waitk *k) {
     a6_evslots_add(tbl, a6_waitk_p_fd(k), intrusion_from_ptr(k));
 }
