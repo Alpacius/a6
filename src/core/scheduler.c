@@ -104,7 +104,8 @@ struct a6_scheduler *a6_scheduler_init(struct a6_scheduler *sched, uint64_t max_
         (sched->baseinfo.max_n_uth = max_n_uth), (sched->iomon = iomon);
     list_init(&(sched->qreqs.queue)), pthread_spin_init(&(sched->qreqs.lock), PTHREAD_PROCESS_PRIVATE);
     a6_evadaptor_init(&(sched->evchan));
-    a6i_ltrd_fd_(iomon, a6_evadaptor_read_end(&(sched->evchan)));
+    sched->kdummy.type = A6_WAITK_DUMMY;
+    a6_iomon_ltrd_fd_(iomon, a6_evadaptor_read_end(&(sched->evchan)), &(sched->kdummy));
     // initialize io extension actions
     {
         // release qreqs

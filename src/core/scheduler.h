@@ -6,6 +6,7 @@
 #include    <core/evadaptor_afunix.h>
 #include    <core/ioext.h>
 #include    <core/uthreq.h>
+#include    <core/waitk.h>
 
 struct a6_iomonitor;
 
@@ -24,6 +25,7 @@ struct a6_scheduler {
     } qreqs;
     struct a6_ioext_act ioext_hooks[N_IOEXT_ACTS];
     struct a6_evadaptor evchan;
+    struct a6_waitk kdummy;
 };
 
 struct a6_uthread;

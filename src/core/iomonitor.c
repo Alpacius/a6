@@ -3,8 +3,6 @@
 
 struct a6_evslots *a6i_curr_evslots(void);
 
-extern struct a6_waitk kdummy;
-
 struct a6_iomonitor *a6_iomonitor_create(int cap) {
     struct a6_iomonitor *iomon = malloc(sizeof(struct a6_iomonitor) + sizeof(struct epoll_event) * cap);
     if (unlikely(iomon == NULL))
@@ -180,7 +178,7 @@ int a6_iomonitor_poll(
             struct link_index *ksplist = a6_ioev_aim_(iomon->evtbl, fd_target);
             list_foreach_remove(ksplist) {
                 __auto_type k = intrusive_ref(struct a6_waitk);
-                if (k != &kdummy)
+                if (k->type != A6_WAITK_DUMMY)
                     detach_current_iterator;
                 struct a6_ioevent ioev = { .type = A6_IOEV_CR, .fd = a6_waitk_p_fd(k), .udata = k };
                 collect(&ioev, res_groups, n_res_groups);
