@@ -89,13 +89,13 @@ static inline void do_fill(struct a6_future *f, int opcode, va_list ap);
 
 int a6_promise_put_(struct a6_promise *p, int opcode, ...) {
     int r = 1, echan = A6_ASYNC_CHAN_INIT;
+    {
+        va_list ap;
+        va_start(ap, opcode);
+        do_fill(p->future, opcode, ap);
+        va_end(ap);
+    }
     if (__atomic_compare_exchange_n(&(p->future->base.chan), &echan, A6_ASYNC_CHAN_Q_PH1, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
-        {
-            va_list ap;
-            va_start(ap, opcode);
-            do_fill(p->future, opcode, ap);
-            va_end(ap);
-        }
         __atomic_store_n(&(p->future->base.chan), A6_ASYNC_CHAN_Q_PH2, __ATOMIC_RELEASE);
     } else {
         struct a6_async_req rload = { .arg = p->future };
