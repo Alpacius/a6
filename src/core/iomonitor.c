@@ -64,7 +64,6 @@ void a6i_iomon_add_k(struct a6_iomonitor *iomon, struct a6_waitk *k) {
 }
 
 // TODO macro instead of inlined function
-static inline
 void a6i_ioev_attach_k(struct a6_waitk *k) {
     struct a6_evslots *evtbl = a6i_curr_evslots();
     a6_ioev_add(evtbl, k);
