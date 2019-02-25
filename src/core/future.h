@@ -1,6 +1,7 @@
 #pragma once
 
-#include    <common/stdc_common.h>
+#include    <stddef.h>
+#include    <stdint.h>
 #include    <core/asynclet.h>
 
 struct a6_promise;

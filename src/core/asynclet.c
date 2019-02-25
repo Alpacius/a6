@@ -23,10 +23,7 @@ int a6i_prepare_crchan_read(struct a6_iomonitor *iomon, struct a6_uthread *uth, 
     ev.events = EPOLLIN|EPOLLONESHOT;
     ev.data.fd = a6_evadaptor_read_end(&(uth->sched->evchan));
     a6i_ioev_attach_k(udata);
-    if (epoll_ctl(iomon->epfd, EPOLL_CTL_ADD, ev.data.fd, &ev) == -1) {
-        int errsv = errno;
-        return (errsv == EEXIST) ? (epoll_ctl(iomon->epfd, EPOLL_CTL_MOD, ev.data.fd, &ev) != -1) : 0;
-    }
+    // NOTE evchan is already attached to epoll - no need to register again
     return 1;
 }
 
@@ -50,7 +47,7 @@ void a6_future_destroy(struct a6_future *f) {
     free(f);
 }
 
-int a6_promise_init(struct a6_promise *p, size_t extsz) {
+int a6_promise_init_(struct a6_promise *p, size_t extsz) {
     return (p->future = a6_future_create(p, extsz)) == NULL;
 }
 
@@ -65,18 +62,18 @@ int a6_future_wait(struct a6_future *f) {
 #define     cpu_relax
 #endif
     int r = 1, echan = A6_ASYNC_CHAN_INIT;
-    __atomic_store_n(&(f->uth), current_uthread(), __ATOMIC_RELEASE);
+    struct a6_uthread *uth = current_uthread();
+    f->uth = uth;
+    struct a6_waitk k;
+    k.type = A6_WAITK_PLAIN;
+    k.fd.i = a6_evadaptor_read_end(&(uth->sched->evchan));
+    k.uth = current_uthread();
     if (!__atomic_compare_exchange_n(
-                &(f->base.chan), &echan, a6_evadaptor_write_end(&(current_uthread()->sched->evchan)), 
+                &(f->base.chan), &echan, a6_evadaptor_write_end(&(uth->sched->evchan)), 
                 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
         while (__atomic_load_n(&(f->base.chan), __ATOMIC_CONSUME) != A6_ASYNC_CHAN_Q_PH2)
             cpu_relax;
     } else {
-        struct a6_uthread *uth = current_uthread();
-        struct a6_waitk k;
-        k.type = A6_WAITK_PLAIN;
-        k.fd.i = a6_evadaptor_read_end(&(uth->sched->evchan));
-        k.uth = uth;
         r = a6i_prepare_crchan_read(uth->sched->iomon, uth, &k);
         a6_uth_blocking;
         uthread_yield;

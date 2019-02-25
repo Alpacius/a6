@@ -149,6 +149,13 @@ void sched_collect(struct a6_ioevent *ev, struct link_index **queues, uint32_t n
                                     list_add_tail(intrusion_from_ptr(uth_new), queues[CQUEUE_CREAT]);
                                 break;
                             }
+                            case A6_REQ_TYPE_ASYNC:
+                            {
+                                struct a6_uthread *uth_waiting = k->uth;
+                                if (likely(uth_waiting != NULL))
+                                    list_add_tail(intrusion_from_ptr(uth_waiting), queues[CQUEUE_IORDY]);
+                                break;
+                            }
                             default:
                                 // do nothing
                                 ;
