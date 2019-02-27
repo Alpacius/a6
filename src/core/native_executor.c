@@ -150,6 +150,7 @@ void *worker_loop_lf(void *arg) {
             int old_cnclstate;
             pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old_cnclstate);
             t->func(t->arg);
+            a6i_async_task_destroy(t);
             pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old_cnclstate);
         }
         pthread_testcancel();                                           // cancellation point III - redundant
