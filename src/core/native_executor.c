@@ -139,24 +139,18 @@ void *worker_loop_lf(void *arg) {
 #define pool_dying \
     (__atomic_load_n(poolstate_p, __ATOMIC_ACQUIRE) == A6I_EPOOL_DYING)
     while (pool_alive) {
-        // 1. race for rod (cancellation point)
-        a6i_executor_rod_acquire(&(pool->meta));
+        a6i_executor_rod_acquire(&(pool->meta));                        // cancellation point I
         if (unlikely(pool_dying))
             break;
-        // 2. pick a task (blocking if none; cancellation point)
-        struct a6i_async_task *t = a6i_e_queue_poll(pool->meta.q);
-        // 3. give the rod up
+        struct a6i_async_task *t = a6i_e_queue_poll(pool->meta.q);      // cancellation point II
         a6i_executor_rod_release(&(pool->meta));
-        // 4. work work
         if (t && t->func) {
-            // task execution shall not be interrupted
             int old_cnclstate;
             pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old_cnclstate);
             t->func(t->arg);
             pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old_cnclstate);
         }
-        // 5. redundant cancellation point
-        pthread_testcancel();
+        pthread_testcancel();                                           // cancellation point III - redundant
     }
 #undef pool_alive
 #undef pool_dying
