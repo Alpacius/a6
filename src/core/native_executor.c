@@ -158,5 +158,8 @@ void *worker_loop_lf(void *arg) {
         // 5. redundant cancellation point
         pthread_testcancel();
     }
+#undef pool_alive
+#undef pool_dying
+#undef poolstate_p
     return NULL;
 }
