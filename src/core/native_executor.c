@@ -140,8 +140,10 @@ void *worker_loop_lf(void *arg) {
     (__atomic_load_n(poolstate_p, __ATOMIC_ACQUIRE) == A6I_EPOOL_DYING)
     while (pool_alive) {
         a6i_executor_rod_acquire(&(pool->meta));                        // cancellation point I
-        if (unlikely(pool_dying))
+        if (unlikely(pool_dying)) {
+            a6i_executor_rod_release(&(pool->meta));
             break;
+        }
         struct a6i_async_task *t = a6i_e_queue_poll(pool->meta.q);      // cancellation point II
         a6i_executor_rod_release(&(pool->meta));
         if (t && t->func) {
