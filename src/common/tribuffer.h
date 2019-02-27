@@ -1,6 +1,6 @@
 #pragma once
 
-#include    <common/std_common.h>
+#include    <common/stdc_common.h>
 #include    <common/miscutils.h>
 #include    <common/list.h>
 
@@ -24,7 +24,7 @@ struct tribuffer *tribuffer_init(struct tribuffer *tb) {
 static inline
 struct link_index *tribuffer_rdside(struct tribuffer *tb) {
     uint32_t rd, wr;
-    uint32_t old = __atomic_load_n(&(tb->pliot), __ATOMIC_ACQ_REL);
+    uint32_t old = __atomic_load_n(&(tb->pliot), __ATOMIC_ACQUIRE);
     do {
         rd = old / 4;
         wr = old % 4;
@@ -36,7 +36,7 @@ struct link_index *tribuffer_rdside(struct tribuffer *tb) {
 static inline
 struct link_index *tribuffer_wrside(struct tribuffer *tb) {
     uint32_t rd, wr;
-    uint32_t old = __atomic_load_n(&(tb->pliot), __ATOMIC_ACQ_REL);
+    uint32_t old = __atomic_load_n(&(tb->pliot), __ATOMIC_ACQUIRE);
     do {
         rd = old / 4;
         wr = old % 4;
