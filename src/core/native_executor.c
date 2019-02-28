@@ -30,7 +30,7 @@ struct a6i_executor_rod {
 #define     A6I_EPOOL_INIT          0
 #define     A6I_EPOOL_RUNNING       1
 #define     A6I_EPOOL_DYING         2
-#define     A6I_EPOLL_RUINED        3
+#define     A6I_EPOOL_RUINED        3
 
 struct a6i_executor_pool {
     int state;
@@ -159,4 +159,40 @@ void *worker_loop_lf(void *arg) {
 #undef pool_dying
 #undef poolstate_p
     return NULL;
+}
+
+int a6i_executor_pool_init(struct a6i_executor_pool *p, uint32_t size) {
+    p->size = size;
+    __atomic_store_n(&(p->state), A6I_EPOOL_INIT, __ATOMIC_RELEASE);
+    if (unlikely(a6i_executor_rod_init(&(p->meta), size) == 0))
+        return 0;
+    if (unlikely(pthread_barrier_init(&(p->barrier_init), NULL, size) == -1))
+        return a6i_executor_rod_ruin(&(p->meta)), 0;
+    __atomic_store_n(&(p->state), A6I_EPOOL_RUNNING, __ATOMIC_RELEASE);
+    for (uint32_t i = 0; i < size; i++)
+        pthread_create(&(p->threads[i]), NULL, worker_loop_lf, p);
+    return 1;
+}
+
+void a6i_executor_pool_ruin(struct a6i_executor_pool *p) {
+    __atomic_store_n(&(p->state), A6I_EPOOL_DYING, __ATOMIC_RELEASE);
+    for (uint32_t i = 0; i < p->size; i++)
+        pthread_cancel(p->threads[i]);
+    for (uint32_t i = 0; i < p->size; i++)
+        pthread_join(p->threads[i], NULL);
+    pthread_barrier_destroy(&(p->barrier_init));
+    a6i_executor_rod_ruin(&(p->meta));
+    __atomic_store_n(&(p->state), A6I_EPOOL_RUINED, __ATOMIC_RELEASE);
+}
+
+struct a6i_executor_pool *a6i_executor_pool_create(uint32_t size) {
+    struct a6i_executor_pool *p = malloc(sizeof(struct a6i_executor_pool) + sizeof(pthread_t) * size);
+    if (unlikely(p == NULL))
+        return NULL;
+    return a6i_executor_pool_init(p, size) ? p : (free(p), NULL);
+}
+
+void a6i_executor_pool_destroy(struct a6i_executor_pool *p) {
+    a6i_executor_pool_ruin(p);
+    free(p);
 }
